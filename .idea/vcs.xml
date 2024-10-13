@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Birthday_Card/Android_Lab4.1_BirthdayCard" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Calculator/appAwakeDrive" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Weather_App/Weather-App-Java" vcs="Git" />
   </component>
 </project>
