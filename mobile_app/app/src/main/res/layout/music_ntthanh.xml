@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_blue">
+
+    <!-- Circular Image (Record) -->
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="top|center_horizontal"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_NoT" />
+
+        <FrameLayout
+            android:id="@+id/record_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+            <ImageView
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/img_disc" />
+
+
+            <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/img_disc_circle" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/pause"
+                android:visibility="gone" />
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/playArrow"
+                android:visibility="gone" />
+
+
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- Play Button (on top of the circular image) -->
+
+    <!-- Row of three image icons -->
+    <LinearLayout
+        android:id="@+id/image_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout6"
+        android:gravity="center">
+        <!-- First Image -->
+
+        <!-- Second Image -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="30dp"
+            app:cardElevation="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- ImageView hiển thị hình ảnh với background -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ava6" /> <!-- Hiển thị hình ảnh trong ImageView -->
+
+
+            <!-- Play icon nằm chính giữa -->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play"
+                android:visibility="gone" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_pause"
+                android:visibility="gone" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="30dp"
+            app:cardElevation="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- ImageView hiển thị hình ảnh với background -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ava5" /> <!-- Hiển thị hình ảnh trong ImageView -->
+
+
+            <!-- Play icon nằm chính giữa -->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play"
+                android:visibility="gone" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_pause"
+                android:visibility="gone" />
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- Third Image -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/button2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="30dp"
+            app:cardElevation="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- ImageView hiển thị hình ảnh với background -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ava4" /> <!-- Hiển thị hình ảnh trong ImageView -->
+
+
+            <!-- Play icon nằm chính giữa -->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play"
+                android:visibility="gone" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_pause"
+                android:visibility="gone" />
+
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/down_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:background="@android:color/transparent"
+        android:drawableBottom="@drawable/img_arrow"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Lướt xuống để xem thêm"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image_row" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+                <LinearLayout
+                    android:id="@+id/relativeLayout2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_bold"
+                            android:text="Thiết bị đã kết nối"
+                            android:textSize="30sp"
+                            android:layout_weight="1"/>
+
+                        <Button
+                            android:id="@+id/button8"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:backgroundTint="#00FFFFFF"
+                            android:fontFamily="@font/inter"
+                            android:text="Xoá"
+                            android:textColor="#FF0000"
+                            android:textSize="16sp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- FrameLayout thay cho Button -->
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="#00FFFFFF"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="start|center_vertical">
+
+                            <ImageView
+                                android:id="@+id/icon_headset"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_gravity="start|center_vertical"
+                                android:src="@drawable/ic_headset"
+                                android:visibility="visible"/>
+
+                            <CheckBox
+                                android:id="@+id/delete_checkbox"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:text=""
+                                android:gravity="start|center_vertical"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/device_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|center_vertical"
+                                android:layout_marginStart="10dp"
+                                android:fontFamily="@font/inter_semibold"
+                                android:text="Sample Device"
+                                android:textColor="#000000"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/textView2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|center_vertical"
+                                android:layout_marginStart="10dp"
+                                android:drawableStart="@drawable/ic_green_dot"
+                                android:drawablePadding="5dp"
+                                android:fontFamily="@font/inter"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/button7"
+                            android:layout_height="match_parent"
+                            android:layout_width="20dp"
+                            android:layout_weight="0"
+                            android:layout_gravity="end|center_vertical"
+                            android:text="Button" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/relativeLayout2"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/available_device"
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_toStartOf="@+id/reload"
+                            android:fontFamily="@font/inter_semibold"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="10dp"
+                            android:text="Thiết bị đã kết nối"
+                            android:textSize="17sp" />
+
+                        <Button
+                            android:id="@+id/reload"
+                            android:layout_width="50dp"
+                            android:layout_height="30dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:text="Reload" />
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="10dp"
+                        android:background="#00FFFFFF"
+                        android:orientation="horizontal"
+                        android:padding="10dp">
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="start|center_vertical"
+                            android:src="@drawable/ic_headset" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|center_vertical"
+                                android:layout_marginStart="10dp"
+                                android:fontFamily="@font/inter_semibold"
+                                android:text="Sample Device"
+                                android:textColor="#000000"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|center_vertical"
+                                android:layout_marginStart="10dp"
+                                android:drawableStart="@drawable/ic_yellow_dot"
+                                android:drawablePadding="5dp"
+                                android:fontFamily="@font/inter"
+                                android:text="TextView"
+                                android:textColor="#000000"
+                                android:textSize="14sp"
+                                android:visibility="gone"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                    <!-- FrameLayout thay cho Button -->
+
+                </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
