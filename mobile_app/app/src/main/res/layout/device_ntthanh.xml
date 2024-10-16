@@ -121,11 +121,14 @@
 
                         <Button
                             android:id="@+id/button7"
-                            android:layout_height="match_parent"
-                            android:layout_width="20dp"
-                            android:layout_weight="0"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:layout_gravity="end|center_vertical"
-                            android:text="Button" />
+                            android:layout_weight="0"
+                            android:background="@drawable/ic_more_vertical"
+                            android:backgroundTint="#00FFFFFF"
+                            android:text="Button"
+                            app:iconTint="#000000" />
 
                     </LinearLayout>
                 </LinearLayout>
@@ -162,11 +165,12 @@
 
                         <Button
                             android:id="@+id/reload"
-                            android:layout_width="50dp"
+                            android:layout_width="30dp"
                             android:layout_height="30dp"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
+                            android:background="@drawable/ic_refresh"
                             android:text="Reload" />
                     </RelativeLayout>
 
