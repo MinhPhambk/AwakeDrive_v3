@@ -53,14 +53,14 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop"
-                android:src="@drawable/pause"
+                android:src="@drawable/ic_pause"
                 android:visibility="gone" />
             <ImageView
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop"
-                android:src="@drawable/playArrow"
+                android:src="@drawable/ic_play"
                 android:visibility="gone" />
 
 
