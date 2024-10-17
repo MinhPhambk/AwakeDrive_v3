@@ -52,25 +52,7 @@
         android:textColor="#000000"
         android:textSize="20dp" />
 
-    <LinearLayout
-        android:id="@+id/wave_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="275dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/tv_attention_label"
-        android:layout_marginStart="30dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="29dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginBottom="119dp"
-        android:background="@xml/sharp"
-        android:orientation="vertical">
-
-    </LinearLayout>
-
-<!--    <Spinner-->
+    <!--    <Spinner-->
 <!--        android:id="@+id/label_spinner"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="37dp"-->
@@ -82,6 +64,24 @@
 <!--        android:visibility="visible"-->
 <!--        app:layout_constraintHorizontal_bias="0.5"-->
 <!--        tools:ignore="MissingConstraints" />-->
+
+    <LinearLayout
+        android:id="@+id/wave_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="275dp"
+        android:layout_below="@id/tv_attention_label"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="29dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="31dp"
+        android:layout_marginBottom="119dp"
+        android:background="@xml/sharp"
+        android:orientation="vertical">
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_attention_start"
