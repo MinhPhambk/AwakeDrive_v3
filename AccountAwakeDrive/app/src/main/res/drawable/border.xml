@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- res/drawable/border.xml -->
+    <shape xmlns:android="http://schemas.android.com/apk/res/android">
+        <!-- Màu nền của Button, có thể trong suốt hoặc màu khác -->
+        <solid android:color="#FFFFFF"/> <!-- Màu nền trắng -->
+
+        <!-- Viền trắng cho Button -->
+        <stroke
+            android:width="2dp"
+            android:color="#FFFFFF"/> <!-- Màu viền trắng -->
+
+        <!-- Bo góc nếu cần -->
+        <corners android:radius="8dp"/> <!-- Góc bo 8dp -->
+    </shape>
+</selector>

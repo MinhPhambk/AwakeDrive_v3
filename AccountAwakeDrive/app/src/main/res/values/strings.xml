@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AccountAwakeDrive</string>
+    <string name="account_info_activity_label">Account Info</string>
+    <string name="history_activity_label">History</string>
+</resources>

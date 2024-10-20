@@ -1,0 +1,5 @@
+
+    <shape xmlns:android="http://schemas.android.com/apk/res/android">
+        <solid android:color="#02ABFD"/> <!-- Màu xanh đậm cho nền trong -->
+        <corners android:radius="35dp"/> <!-- Bo tròn nhiều hơn để tạo hiệu ứng giống hình -->
+    </shape>

@@ -1,0 +1,432 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/AccountInfo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9FBFF"
+    tools:context=".MainActivity">
+
+    <!-- Frame -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headFrame"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="#63CBFE"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="1dp"
+        tools:ignore="MissingConstraints">
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/AvaUser"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="150dp"
+            android:layout_marginEnd="285dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/cat"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.23"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.375" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="152dp"
+            android:fontFamily="@font/inter_bold"
+            android:text="Cat"
+            android:textAlignment="viewStart"
+            android:textColor="#01527A"
+            android:textSize="24sp"
+            app:layout_constraintStart_toEndOf="@+id/AvaUser"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:fontFamily="@font/inter"
+            android:text="meomeomeo@gmail.com"
+            android:textAlignment="viewEnd"
+            android:textColor="#01527A"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/AvaUser"
+            app:layout_constraintTop_toBottomOf="@+id/name" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--Button sang trang thông tin -->
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="#ACB4B9"
+        app:layout_constraintBottom_toTopOf="@+id/btn_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headFrame"
+        tools:ignore="MissingConstraints" />
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/border"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view2" />
+
+    <!--        tools:ignore="MissingConstraints" />-->
+
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/ava_icon"
+        app:layout_constraintBottom_toTopOf="@+id/view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btn_back"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="#ACB4B9"
+        app:layout_constraintBottom_toTopOf="@+id/btn_history"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_back" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Thông tin cá nhân"
+        android:textColor="#000000"
+        app:layout_constraintStart_toEndOf="@+id/imageView2"
+        app:layout_constraintTop_toTopOf="@+id/btn_back" />
+
+    <!-- Button sang trang lịch sử -->
+    <Button
+        android:id="@+id/btn_history"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/border"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_back" />
+
+    <ImageView
+        android:id="@+id/imageView_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/history_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_history" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Lịch sử"
+        android:textColor="#000000"
+        app:layout_constraintStart_toEndOf="@+id/imageView_history"
+        app:layout_constraintTop_toTopOf="@+id/btn_history" />
+
+    <!-- Button sang trang cài đặt -->
+
+    <View
+        android:id="@+id/divHistorySetting"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/btn_settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_history" />
+
+    <Button
+        android:id="@+id/btn_settings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/border"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divHistorySetting" />
+
+    <ImageView
+        android:id="@+id/imageView_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/settings_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divHistorySetting" />
+
+    <View
+        android:id="@+id/view3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="#ACB4B9"
+        app:layout_constraintBottom_toTopOf="@+id/btn_support"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_settings" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Cài đặt"
+        android:textColor="#000000"
+        app:layout_constraintStart_toEndOf="@+id/imageView_settings"
+        app:layout_constraintTop_toBottomOf="@+id/divHistorySetting" />
+
+    <!-- Button hỗ trợ và gợi ý -->
+    <Button
+        android:id="@+id/btn_support"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/border"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view3" />
+
+    <ImageView
+        android:id="@+id/imageView_support"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/support_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_support" />
+
+    <View
+        android:id="@+id/view4"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="#ACB4B9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_support" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Hỗ trợ và Gợi ý"
+        android:textColor="#000000"
+        app:layout_constraintStart_toEndOf="@+id/imageView_support"
+        app:layout_constraintTop_toTopOf="@+id/btn_support" />
+
+    <!-- Button chính sách và điều khoản -->
+    <Button
+        android:id="@+id/btn_privacy_policy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/border"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view4" />
+
+    <ImageView
+        android:id="@+id/imageView_privacy_policy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/privacy_policy_icon"
+        app:layout_constraintStart_toStartOf="@+id/btn_privacy_policy"
+        app:layout_constraintTop_toBottomOf="@+id/view4" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Chính sách và Điều khoản"
+        android:textColor="#000000"
+        app:layout_constraintStart_toEndOf="@+id/imageView_privacy_policy"
+        app:layout_constraintTop_toTopOf="@+id/btn_privacy_policy" />
+
+    <View
+        android:id="@+id/view5"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="#ACB4B9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView_privacy_policy"
+        tools:ignore="MissingConstraints" />
+
+    <View
+        android:id="@+id/divHeadInfo"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="#ACB4B9"
+        app:layout_constraintBottom_toTopOf="@+id/btn_settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_history" />
+
+<!--Chuyển tài khoản / Đăng xuất-->
+    <Button
+        android:id="@+id/switchAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/border"
+        android:fontFamily="@font/inter"
+        android:text="Chuyển tài khoản"
+        android:textColor="#02ABFD"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_privacy_policy" />
+
+    <Button
+        android:id="@+id/logOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        android:fontFamily="@font/inter"
+        android:text="Đăng xuất"
+        android:textColor="#EE0033"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchAccount" />
+
+    <!--Navbar-->
+    <View
+        android:id="@+id/navbar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#F9F9F9"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <Button
+        android:id="@+id/navbar_home"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        app:layout_constraintStart_toStartOf="@id/navbar"
+        app:layout_constraintTop_toTopOf="@id/navbar"
+        app:layout_constraintWidth_percent="0.25" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/home_icon"
+        app:layout_constraintStart_toStartOf="@id/navbar_home"
+        app:layout_constraintEnd_toEndOf="@id/navbar_home"
+        app:layout_constraintTop_toTopOf="@id/navbar_home"
+        app:layout_constraintBottom_toBottomOf="@id/navbar_home"/>
+
+    <Button
+        android:id="@+id/navbar_device"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        app:layout_constraintStart_toEndOf="@id/navbar_home"
+        app:layout_constraintTop_toTopOf="@+id/navbar"
+        app:layout_constraintWidth_percent="0.25" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/device_icon"
+        app:layout_constraintBottom_toBottomOf="@id/navbar_device"
+        app:layout_constraintStart_toStartOf="@id/navbar_device"
+        app:layout_constraintEnd_toEndOf="@id/navbar_device"
+        app:layout_constraintTop_toTopOf="@id/navbar_device"
+        android:foregroundGravity="center"/>
+
+    <Button
+        android:id="@+id/navbar_music"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        app:layout_constraintStart_toEndOf="@id/navbar_device"
+        app:layout_constraintTop_toTopOf="@id/navbar"
+        app:layout_constraintWidth_percent="0.25"/>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/music_icon"
+        app:layout_constraintStart_toStartOf="@id/navbar_music"
+        app:layout_constraintTop_toTopOf="@id/navbar_music"
+        app:layout_constraintEnd_toEndOf="@id/navbar_music"
+        app:layout_constraintBottom_toBottomOf="@id/navbar_music"/>
+
+    <Button
+        android:id="@+id/navbar_account_info"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        app:layout_constraintStart_toEndOf="@id/navbar_music"
+        app:layout_constraintTop_toTopOf="@id/navbar"
+        app:layout_constraintWidth_percent="0.25" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/account_icon"
+        app:layout_constraintStart_toStartOf="@id/navbar_account_info"
+        app:layout_constraintTop_toTopOf="@id/navbar_account_info"
+        app:layout_constraintEnd_toEndOf="@id/navbar_account_info"
+        app:layout_constraintBottom_toBottomOf="@id/navbar_account_info"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
