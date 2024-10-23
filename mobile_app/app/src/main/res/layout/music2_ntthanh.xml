@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_blue">
+
+    <!-- Flow giúp tự động bố trí các nút -->
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:id="@+id/flow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        app:constraint_referenced_ids="button1,button2,button3,button4,button5"
+        app:flow_horizontalGap="10dp"
+        app:flow_horizontalStyle="spread"
+        app:flow_maxElementsWrap="3"
+        app:flow_verticalAlign="top"
+        app:flow_verticalGap="10dp"
+        app:flow_wrapMode="chain"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Nút 1 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/button1"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView hiển thị hình ảnh với background -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ava5" /> <!-- Hiển thị hình ảnh trong ImageView -->
+
+        <!-- Pin icon nằm ở góc trên bên phải -->
+        <ImageView
+            android:id="@+id/pin_icon_1"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:src="@drawable/ic_pin"
+            android:visibility="gone" />
+
+        <!-- Play icon nằm chính giữa -->
+        <ImageView
+            android:id="@+id/play_icon_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_pause"
+            android:visibility="gone" />
+
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Nút 2 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/button2"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView hiển thị hình ảnh với background -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ava7" />
+
+        <!-- Pin icon nằm ở góc trên bên phải -->
+        <ImageView
+            android:id="@+id/pin_icon_2"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:src="@drawable/ic_pin"
+            android:visibility="gone" />
+
+        <!-- Play icon nằm chính giữa -->
+        <ImageView
+            android:id="@+id/play_icon_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_pause"
+            android:visibility="gone" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Nút 3 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/button3"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView hiển thị hình ảnh với background -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ava3" /> <!-- Hiển thị hình ảnh trong ImageView -->
+
+        <!-- Pin icon nằm ở góc trên bên phải -->
+        <ImageView
+            android:id="@+id/pin_icon_3"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:src="@drawable/ic_pin"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_pause"
+            android:visibility="gone" />
+
+        <!-- Play icon nằm chính giữa -->
+        <ImageView
+            android:id="@+id/play_icon_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:visibility="gone" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Nút 4 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/button4"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView hiển thị hình ảnh với background -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ava2" /> <!-- Hiển thị hình ảnh trong ImageView -->
+
+        <!-- Pin icon nằm ở góc trên bên phải -->
+        <ImageView
+            android:id="@+id/pin_icon_4"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:src="@drawable/ic_pin"
+            android:visibility="gone" />
+
+        <!-- Play icon nằm chính giữa -->
+        <ImageView
+            android:id="@+id/play_icon_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_pause"
+            android:visibility="gone" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Nút 5 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/button5"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ImageView hiển thị hình ảnh với background -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ava1" /> <!-- Hiển thị hình ảnh trong ImageView -->
+
+        <!-- Pin icon nằm ở góc trên bên phải -->
+        <ImageView
+            android:id="@+id/pin_icon_5"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="top|end"
+            android:src="@drawable/ic_pin"
+            android:visibility="gone" />
+
+        <!-- Play icon nằm chính giữa -->
+        <ImageView
+            android:id="@+id/play_icon_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_pause"
+            android:visibility="gone" />
+
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

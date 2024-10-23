@@ -14,4 +14,9 @@
 
     <color name="inactive">#C4C4C4</color>
     <color name="active">#50C2C9</color>
+
+    <color name="text_color">#000000</color>
+    <color name="primary_blue">#63CBFE</color>
+    <color name="secondary_blue">#02ABFD</color>
+
 </resources>
