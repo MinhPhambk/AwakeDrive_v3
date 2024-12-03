@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Brainwave"
+        android:usesCleartextTraffic="true"
+        android:roundIcon="@drawable/icon"
+        tools:targetApi="31">
+        <activity
+            android:name="com.example.brainwave.SleepActivity"
+            android:exported="false" />
+
+        <service
+            android:name="com.example.brainwave.AlertService"
+            android:exported="false" />
+
+        <activity
+            android:name="com.example.brainwave.AttentionActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.ModelsActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.LabeledActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.UpdateActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.IntroActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.GetStartedActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.brainwave.SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.example.brainwave.BluetoothAdapterActivity" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+    </application>
+
+</manifest>

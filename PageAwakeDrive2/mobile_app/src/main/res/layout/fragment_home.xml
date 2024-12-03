@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#e4eeff"
+    tools:context=".FragmentHome">
+
+    <FrameLayout
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginTop="13dp"
+        android:background="@drawable/rec25"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:cardCornerRadius="250dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="15dp"
+            app:cardBackgroundColor="@color/white">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_width="121dp"
+                    android:layout_height="121dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/anym" />
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Anonymous"
+            android:layout_marginLeft="140dp"
+            android:layout_marginTop="25dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please login to locate!"
+            android:layout_marginLeft="140dp"
+            android:layout_marginTop="60dp"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/date_now"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_marginLeft="140dp"
+            android:layout_marginTop="95dp"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_below="@+id/info"
+        android:id="@+id/parama"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="21dp"
+        android:background="@drawable/rec29"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brainwave index"
+            android:layout_marginLeft="33dp"
+            android:layout_marginTop="25dp"
+            android:textStyle="bold"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="None"
+            android:layout_marginLeft="33dp"
+            android:layout_marginTop="60dp"
+            android:textColor="#FF0000"
+            android:textStyle="bold"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hz"
+            android:layout_marginLeft="97dp"
+            android:layout_marginTop="60dp"
+            android:textStyle="bold"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="None"
+            android:layout_marginLeft="275dp"
+            android:layout_marginTop="35dp"
+            android:textColor="#FF0000"
+            android:textStyle="bold"
+            android:textSize="24sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="350dp"
+            android:src="@drawable/graph1"
+            android:layout_marginTop="65dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brainwave index"
+            android:layout_marginLeft="45dp"
+            android:layout_marginTop="125dp"
+            android:textStyle="bold"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amplitude"
+            android:layout_marginLeft="45dp"
+            android:layout_marginTop="155dp"
+            android:textColor="#7e7e7f"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time"
+            android:layout_marginRight="45dp"
+            android:layout_marginTop="345dp"
+            android:layout_gravity="right"
+            android:textColor="#7e7e7f"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/track_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/rec2"
+            android:layout_marginTop="200dp"
+            android:layout_gravity="center_horizontal"
+            />
+    </FrameLayout>
+
+</RelativeLayout>
