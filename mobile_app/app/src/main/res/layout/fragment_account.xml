@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <!-- Header với avatar và thông tin -->
+    <LinearLayout
+        android:id="@+id/header_section"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#66CCFF"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/avatar"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jenky Tran"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/tv_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="jenky.tran@gmail.com"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Danh sách các chức năng -->
+    <LinearLayout
+        android:id="@+id/options_section"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/header_section"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Thông tin tài khoản -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/account1"
+                android:contentDescription="Account Info" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thông tin tài khoản"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <!-- Lịch sử đo đạc -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/history"
+                android:contentDescription="Measurement History" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lịch sử đo đạc"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <!-- Cài đặt -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/setting"
+                android:contentDescription="Settings" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cài đặt"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <!-- Hỗ trợ & Góp ý -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/help"
+                android:contentDescription="Help va Feedback" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hỗ trợ &amp; Góp ý"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <!-- Chính sách & Điều khoản -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/policy"
+                android:contentDescription="Policy" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chính sách &amp; Điều khoản"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Chuyển tài khoản và Đăng xuất -->
+    <LinearLayout
+        android:id="@+id/logout_section"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/btn_switch_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chuyển tài khoản"
+            android:textColor="#66CCFF"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/btn_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đăng xuất"
+            android:textColor="#FF0000"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

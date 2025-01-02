@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <!-- Headset icon -->
+    <ImageView
+        android:id="@+id/icon_headset"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="start|center_vertical"
+        android:src="@drawable/ic_headset" />
+
+    <!-- Device Name -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="10dp">
+
+        <TextView
+            android:id="@+id/device_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sample Device"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:fontFamily="@font/inter_semibold" />
+
+        <TextView
+            android:id="@+id/device_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00:00:00:00:00"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter" />
+
+    </LinearLayout>
+    <!-- Delete button -->
+    <ImageView
+        android:id="@+id/delete_icon"
+        android:src="@drawable/baseline_close_24"
+        android:layout_gravity="end|center_vertical"
+        android:layout_width="24dp"
+        android:layout_height="24dp"/>
+</LinearLayout>
