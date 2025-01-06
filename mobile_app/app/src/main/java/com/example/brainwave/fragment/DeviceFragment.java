@@ -1,6 +1,7 @@
 package com.example.brainwave.fragment;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.brainwave.R;
@@ -42,19 +44,11 @@ public class DeviceFragment extends Fragment {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+            if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device != null) {
-                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    String deviceName = device.getName();
-                    if (deviceName != null && !deviceName.isEmpty() && !isDeviceInList(deviceName)) {
-                        String deviceAddress = device.getAddress();
-                        availableDevices.add(new Device(deviceName, deviceAddress, false));
-                        availableAdapter.notifyDataSetChanged();
-                    }
+                if (device != null && device.getName() != null && !isDeviceInList(device.getName())) {
+                    availableDevices.add(new Device(device.getName(), device.getAddress(), false));
+                    availableAdapter.notifyDataSetChanged();
                 }
             }
         }
@@ -72,6 +66,8 @@ public class DeviceFragment extends Fragment {
 
         RecyclerView rvConnected = view.findViewById(R.id.rv_connected_devices);
         RecyclerView rvAvailable = view.findViewById(R.id.rv_available_devices);
+        ImageView ivRefreshConnected = view.findViewById(R.id.iv_refresh_connected);
+        ImageView ivRefreshAvailable = view.findViewById(R.id.iv_refresh_available);
 
         rvConnected.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAvailable.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -82,19 +78,15 @@ public class DeviceFragment extends Fragment {
         rvConnected.setAdapter(connectedAdapter);
         rvAvailable.setAdapter(availableAdapter);
 
-        availableAdapter.setOnItemClickListener(new DeviceAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(Device device, int position) {
-                connectToDevice(position);
-            }
-        });
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Toast.makeText(getContext(), "Bluetooth không được hỗ trợ", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        ivRefreshConnected.setOnClickListener(v -> refreshConnectedDevices(ivRefreshConnected));
+        ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
+        availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
         checkPermissionsAndStart();
     }
 
@@ -102,14 +94,17 @@ public class DeviceFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
                     ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[] {
+                requestPermissions(new String[]{
                         Manifest.permission.BLUETOOTH_SCAN,
                         Manifest.permission.BLUETOOTH_CONNECT
                 }, 1001);
                 return;
             }
         }
+        startBluetoothProcesses();
+    }
 
+    private void startBluetoothProcesses() {
         if (!bluetoothAdapter.isEnabled()) {
             Toast.makeText(getContext(), "Bluetooth chưa được bật", Toast.LENGTH_SHORT).show();
         } else {
@@ -119,16 +114,10 @@ public class DeviceFragment extends Fragment {
     }
 
     private void fetchPairedDevices() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         if (pairedDevices != null) {
             for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                if (deviceName == null || deviceName.isEmpty()) {
-                    deviceName = "Thiết bị không tên";
-                }
+                String deviceName = device.getName() != null ? device.getName() : "Thiết bị không tên";
                 connectedDevices.add(new Device(deviceName, device.getAddress(), true));
             }
             connectedAdapter.notifyDataSetChanged();
@@ -136,30 +125,9 @@ public class DeviceFragment extends Fragment {
     }
 
     private void discoverDevices() {
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        if (bluetoothAdapter.isDiscovering()) {
-            bluetoothAdapter.cancelDiscovery();
-        }
+        bluetoothAdapter.cancelDiscovery();
         bluetoothAdapter.startDiscovery();
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        if (getContext() != null) {
-            getContext().registerReceiver(receiver, filter);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1001) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                fetchPairedDevices();
-                discoverDevices();
-            } else {
-                Toast.makeText(getContext(), "Không được cấp quyền Bluetooth", Toast.LENGTH_SHORT).show();
-            }
-        }
+        getContext().registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
     }
 
     private boolean isDeviceInList(String deviceName) {
@@ -173,48 +141,51 @@ public class DeviceFragment extends Fragment {
 
     private void connectToDevice(int position) {
         Device device = availableDevices.get(position);
-        String deviceName = device.getName();
-        String deviceAddress = device.getAddress();
-
-        if (deviceAddress == null || deviceAddress.isEmpty()) {
-            Toast.makeText(getContext(), "Địa chỉ thiết bị không hợp lệ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
-
+        BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
         try {
-            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 3);
-                return;
-            }
             bluetoothDevice.createBond(); // Request pairing
-
-            // Wait for bonding to complete before adding to the connected list
             if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                connectedDevices.add(new Device(bluetoothDevice.getName(), bluetoothDevice.getAddress(), true));
+                connectedDevices.add(new Device(device.getName(), device.getAddress(), true));
                 connectedAdapter.notifyDataSetChanged();
                 availableDevices.remove(device);
                 availableAdapter.notifyDataSetChanged();
-                Toast.makeText(getContext(), "Pairing with " + deviceName, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Failed to pair with " + deviceName, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Đã kết nối với " + device.getName(), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Failed to pair device", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Kết nối thất bại", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void refreshConnectedDevices(ImageView ivRefreshConnected) {
+        // Hiệu ứng xoay
+        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(ivRefreshConnected, "rotation", 0f, 360f);
+        rotateAnimator.setDuration(500); // Thời gian xoay 500ms
+        rotateAnimator.start();
+
+        // Làm mới danh sách thiết bị đã kết nối
+        connectedDevices.clear();
+        fetchPairedDevices(); // Tải lại danh sách thiết bị đã kết nối
+    }
+
+    private void refreshAvailableDevices(ImageView ivRefreshAvailable) {
+        // Hiệu ứng xoay
+        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(ivRefreshAvailable, "rotation", 0f, 360f);
+        rotateAnimator.setDuration(500); // Thời gian xoay 500ms
+        rotateAnimator.start();
+
+        // Làm mới danh sách thiết bị khả dụng
+        bluetoothAdapter.cancelDiscovery();
+        availableDevices.clear();
+        availableAdapter.notifyDataSetChanged();
+        discoverDevices(); // Bắt đầu tìm kiếm thiết bị mới
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (getContext() != null) {
-            try {
-                getContext().unregisterReceiver(receiver);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
+        try {
+            getContext().unregisterReceiver(receiver);
+        } catch (IllegalArgumentException ignored) {
         }
     }
 }

@@ -2,6 +2,7 @@ package com.example.brainwave.fragment;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -16,11 +17,13 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -30,6 +33,7 @@ import com.example.brainwave.DrawWaveView;
 import com.example.brainwave.LocalDataSet;
 import com.example.brainwave.R;
 import com.example.brainwave.TrainModel;
+import com.example.brainwave.UpdateActivity;
 import com.neurosky.connection.ConnectionStates;
 import com.neurosky.connection.DataType.MindDataType;
 import com.neurosky.connection.EEGPower;
@@ -41,7 +45,13 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Paths;
 
 public class HomeFragment extends Fragment {
@@ -59,7 +69,7 @@ public class HomeFragment extends Fragment {
     private static final int THRESHOLD = 80;
 
     private Button btn_start;
-    private Button btn_stop;
+    private Button btn_stop, button_update;
     private LinearLayout wave_layout;
 
     private static boolean isPoorSignal = false;
@@ -72,10 +82,17 @@ public class HomeFragment extends Fragment {
     private static final int[] sampleShape = {1, NUMBER_OF_FEATURES};
 
     private static int currentStatus;
+    private static boolean isLoading = false;
+    private static boolean isLoaded = false;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+
+    private static String server_url = "http://192.168.0.1000:8080";
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        checkLocationPermission();
         return inflater.inflate(R.layout.awake_view, container, false);
     }
 
@@ -115,10 +132,39 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Nếu quyền chưa được cấp, yêu cầu quyền từ người dùng
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Quyền đã được cấp
+            initializeBluetooth();
+        }
+    }
+    private void initializeBluetooth() {
+        Toast.makeText(requireContext(), "Bluetooth được khởi tạo!", Toast.LENGTH_SHORT).show();
+        // Add Bluetooth initialization code here
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                initializeBluetooth();
+            } else {
+                // Permission denied
+                Toast.makeText(requireContext(), "Quyền vị trí bị từ chối. Không thể sử dụng Bluetooth!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
     private void initView() {
         tv_attention_value = getView().findViewById(R.id.tv_attention_value);
         tv_attention_notification = getView().findViewById(R.id.tv_attention_notification);
-
+        button_update = getView().findViewById(R.id.btn_update);
         btn_start = getView().findViewById(R.id.btn_attention_start);
         btn_stop = getView().findViewById(R.id.btn_attention_stop);
         wave_layout = getView().findViewById(R.id.wave_layout);
@@ -153,6 +199,117 @@ public class HomeFragment extends Fragment {
         });
 
         btn_stop.setOnClickListener(v -> stop());
+
+        button_update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (isLoading) {
+                    return;
+                }
+                isLoading = true;
+                AsyncTaskRunner runner = new AsyncTaskLoadModel();
+                runner.execute();
+                ProgressBar bar = (ProgressBar) getView().findViewById(R.id.progressBar);
+                bar.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private class AsyncTaskRunner extends AsyncTask<Void, Integer, Integer> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            ProgressBar bar = (ProgressBar) getView().findViewById(R.id.progressBar);
+            bar.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            return 0;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+            //Hide the progress bar now that we are finished
+            ProgressBar bar = (ProgressBar) getView().findViewById(R.id.progressBar);
+            bar.setVisibility(View.INVISIBLE);
+
+        }
+
+    }
+
+    private class AsyncTaskLoadModel extends AsyncTaskRunner {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            String content = "Loading model...";
+            tv_attention_notification.setText(content);
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            try {
+                String apiUrl = server_url + "/api/getmodel";
+                Context context = requireContext();
+                File pathFile = new File(context.getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
+
+                URL url = new URL(apiUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream inputStream = new BufferedInputStream(connection.getInputStream());
+                    FileOutputStream outputStream = new FileOutputStream(pathFile);
+
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+
+                    outputStream.close();
+                    inputStream.close();
+
+                    String content = "Zip file downloaded successfully.";
+                    System.out.println(content);
+                    isLoaded = true;
+                } else {
+                    System.out.println("Failed to download zip file. Response code: " + responseCode);
+                }
+
+                connection.disconnect();
+                TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+            if (isLoaded == true) {
+                String content = "Zip file downloaded successfully.";
+                tv_attention_notification.setText(content);
+            } else {
+                String content = "Failed to download zip file.";
+                tv_attention_notification.setText(content);
+            }
+            isLoading = false;
+            isLoaded = false;
+        }
+
     }
 
     private void stop() {
@@ -192,7 +349,9 @@ public class HomeFragment extends Fragment {
         stop();
         super.onDestroy();
     }
+
     DrawWaveView waveView = null;
+
     private void setUpDrawWaveView() {
         DrawWaveView waveView = new DrawWaveView(getContext());
         wave_layout.addView(waveView, new ViewGroup.LayoutParams(
@@ -325,16 +484,25 @@ public class HomeFragment extends Fragment {
                 sample[i * 16 + 5] = EEGdata[i].highBeta;
 
                 // Cách tính các chỉ số tỷ lệ
-                if (EEGdata[i].theta != 0) sample[i * 16 + 6] = (double) EEGdata[i].delta / EEGdata[i].theta;
-                if (EEGdata[i].lowAlpha != 0) sample[i * 16 + 7] = (double) EEGdata[i].delta / EEGdata[i].lowAlpha;
-                if (EEGdata[i].highAlpha != 0) sample[i * 16 + 8] = (double) EEGdata[i].delta / EEGdata[i].highAlpha;
-                if (EEGdata[i].lowBeta != 0) sample[i * 16 + 9] = (double) EEGdata[i].delta / EEGdata[i].lowBeta;
-                if (EEGdata[i].highBeta != 0) sample[i * 16 + 10] = (double) EEGdata[i].delta / EEGdata[i].highBeta;
+                if (EEGdata[i].theta != 0)
+                    sample[i * 16 + 6] = (double) EEGdata[i].delta / EEGdata[i].theta;
+                if (EEGdata[i].lowAlpha != 0)
+                    sample[i * 16 + 7] = (double) EEGdata[i].delta / EEGdata[i].lowAlpha;
+                if (EEGdata[i].highAlpha != 0)
+                    sample[i * 16 + 8] = (double) EEGdata[i].delta / EEGdata[i].highAlpha;
+                if (EEGdata[i].lowBeta != 0)
+                    sample[i * 16 + 9] = (double) EEGdata[i].delta / EEGdata[i].lowBeta;
+                if (EEGdata[i].highBeta != 0)
+                    sample[i * 16 + 10] = (double) EEGdata[i].delta / EEGdata[i].highBeta;
 
-                if (EEGdata[i].lowAlpha != 0) sample[i * 16 + 11] = (double) EEGdata[i].theta / EEGdata[i].lowAlpha;
-                if (EEGdata[i].highAlpha != 0) sample[i * 16 + 12] = (double) EEGdata[i].theta / EEGdata[i].highAlpha;
-                if (EEGdata[i].lowBeta != 0) sample[i * 16 + 13] = (double) EEGdata[i].theta / EEGdata[i].lowBeta;
-                if (EEGdata[i].highBeta != 0) sample[i * 16 + 14] = (double) EEGdata[i].theta / EEGdata[i].highBeta;
+                if (EEGdata[i].lowAlpha != 0)
+                    sample[i * 16 + 11] = (double) EEGdata[i].theta / EEGdata[i].lowAlpha;
+                if (EEGdata[i].highAlpha != 0)
+                    sample[i * 16 + 12] = (double) EEGdata[i].theta / EEGdata[i].highAlpha;
+                if (EEGdata[i].lowBeta != 0)
+                    sample[i * 16 + 13] = (double) EEGdata[i].theta / EEGdata[i].lowBeta;
+                if (EEGdata[i].highBeta != 0)
+                    sample[i * 16 + 14] = (double) EEGdata[i].theta / EEGdata[i].highBeta;
 
                 // Tính tỷ lệ kết hợp giữa các dải tần
                 double denominator = EEGdata[i].lowAlpha + EEGdata[i].highAlpha + EEGdata[i].lowBeta + EEGdata[i].highBeta;
@@ -400,13 +568,14 @@ public class HomeFragment extends Fragment {
         // Method to extract features for classification
         return new double[NUMBER_OF_FEATURES]; // Placeholder
     }
-    private void setFailState(){
+
+    private void setFailState() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 TextView textView = getView().findViewById(R.id.tv_attention_notification);
                 textView.setText("Mất kết nối!");
-                if(tgStreamReader != null){
+                if (tgStreamReader != null) {
                     tgStreamReader.stop();
                     tgStreamReader.close();
                 }

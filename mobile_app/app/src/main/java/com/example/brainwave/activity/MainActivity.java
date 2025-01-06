@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         navigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
