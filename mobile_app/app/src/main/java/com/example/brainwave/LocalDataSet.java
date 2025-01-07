@@ -1,7 +1,7 @@
 package com.example.brainwave;
 
 public class LocalDataSet {
-    static final String [] statues = {
+    public static final String [] statues = {
         "Sleepy", "Awake"
     };
 

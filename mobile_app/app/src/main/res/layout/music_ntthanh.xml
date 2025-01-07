@@ -23,7 +23,7 @@
             android:layout_height="50dp"
             android:layout_gravity="top|center_horizontal"
             android:scaleType="centerCrop"
-            android:src="@drawable/img_NoT" />
+            android:src="@drawable/img_not" />
 
         <FrameLayout
             android:id="@+id/record_image"

@@ -43,6 +43,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import com.example.brainwave.TrainModel;
 
 import org.datavec.api.transform.filter.InvalidNumColumns;
@@ -80,7 +81,7 @@ public class UpdateActivity extends AppCompatActivity implements ActivityCompat.
         }
     }
 
-//    private static String server_url = "https://server-production-6a93.up.railway.app";
+    //    private static String server_url = "https://server-production-6a93.up.railway.app";
 //    private static String server_url = "http://192.168.16.95:8080";
     private static String server_url = "http://192.168.0.1000:8080";
     private static boolean isLoading = false;
@@ -151,7 +152,6 @@ public class UpdateActivity extends AppCompatActivity implements ActivityCompat.
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
             ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar);
             bar.setVisibility(View.INVISIBLE);
         }
