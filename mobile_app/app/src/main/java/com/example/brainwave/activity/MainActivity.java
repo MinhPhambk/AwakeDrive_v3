@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         viewPager2=findViewById(R.id.view_pager);
+        viewPager2.setUserInputEnabled(false);
         navigationView=findViewById(R.id.nav_view);
         ViewPagerAdapter pagerAdapter=new ViewPagerAdapter(this);
         viewPager2.setAdapter(pagerAdapter);
