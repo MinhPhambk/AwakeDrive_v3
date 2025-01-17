@@ -1,11 +1,16 @@
 package com.example.brainwave.fragment;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,9 +18,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,9 +27,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.brainwave.AlertService;
 import com.example.brainwave.AttentionActivity;
@@ -33,7 +41,8 @@ import com.example.brainwave.DrawWaveView;
 import com.example.brainwave.LocalDataSet;
 import com.example.brainwave.R;
 import com.example.brainwave.TrainModel;
-import com.example.brainwave.UpdateActivity;
+import com.example.brainwave.adapter.DeviceAdapter;
+import com.example.brainwave.model.Device;
 import com.neurosky.connection.ConnectionStates;
 import com.neurosky.connection.DataType.MindDataType;
 import com.neurosky.connection.EEGPower;
@@ -50,15 +59,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class HomeFragment extends Fragment {
     private static final String TAG = AttentionActivity.class.getSimpleName();
     private TgStreamReader tgStreamReader;
 
-    private BluetoothAdapter mBluetoothAdapter;
     public static Intent intent;
 
     private TextView tv_attention_value;
@@ -66,12 +78,8 @@ public class HomeFragment extends Fragment {
     private int badPacketCount = 0;
     private int numbeOfSamples = 0;
     private static final int MAX_SAMPLES = 5;
-    private static final int THRESHOLD = 80;
 
-    private Button btn_start;
-    private Button btn_stop, button_update;
     private LinearLayout wave_layout;
-
     private static boolean isPoorSignal = false;
     private static boolean isProcessing = false;
 
@@ -87,41 +95,102 @@ public class HomeFragment extends Fragment {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     private static String server_url = "http://192.168.0.1000:8080";
+    private ConstraintLayout contraint_connect;
+    private ConstraintLayout contraint_connected;
+    private CardView cardView3;
+    private RecyclerView rvConnected;
+    private RecyclerView rvAvailable;
+    private ImageView ivRefreshConnected;
+    private ImageView ivRefreshAvailable;
 
+    //abc
+    private BluetoothAdapter bluetoothAdapter;
+    private DeviceAdapter connectedAdapter, availableAdapter;
+    private final List<Device> connectedDevices = new ArrayList<>();
+    private final List<Device> availableDevices = new ArrayList<>();
+    //abc
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device != null && device.getName() != null && !isDeviceInList(device.getName())) {
+                    availableDevices.add(new Device(device.getName(), device.getAddress(), "Có sẵn"));
+                    availableAdapter.notifyDataSetChanged();
+                }
+            }
+        }
+    };
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        checkLocationPermission();
+        checkAndRequestPermissions();
         return inflater.inflate(R.layout.awake_view, container, false);
+
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        checkBluetoothPermission();
-        intent = new Intent(getContext(), AlertService.class);
+        //abc
+        initView(view);
+        rvConnected.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvAvailable.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        initView();
-        setUpDrawWaveView();
+        connectedAdapter = new DeviceAdapter(connectedDevices);
+        availableAdapter = new DeviceAdapter(availableDevices);
 
-        try {
-            // Ensure Bluetooth is supported and enabled
-            mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-                Toast.makeText(
-                        getContext(),
-                        "Please enable your Bluetooth and re-run this program!",
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.i(TAG, "Error: " + e.getMessage());
+        rvConnected.setAdapter(connectedAdapter);
+        rvAvailable.setAdapter(availableAdapter);
+
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) {
+            Toast.makeText(getContext(), "Bluetooth không được hỗ trợ", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        tgStreamReader = new TgStreamReader(mBluetoothAdapter, callback);
+        ivRefreshConnected.setOnClickListener(v -> refreshConnectedDevices(ivRefreshConnected));
+        ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
+        availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
+        connectedAdapter.setOnUnpairClickListener((device, position) -> unpairDevice(position));
+
+        checkPermissionsAndStart();
+        //abc
+        checkBluetoothPermission();
+
+        intent = new Intent(getContext(), AlertService.class);
+
+        for (int i = 0; i < connectedDevices.size(); i++) {
+            String device_name = connectedDevices.get(i).getName().trim();
+            String device_name_correct = "BT keyboard";
+            String[] words = device_name_correct.split(" ");
+            int index = 0;
+            boolean found = true;
+            for (String word : words) {
+                index = device_name.indexOf(word, index);
+                if (index == -1) {
+                    found = false;
+                    break;
+                }
+                index += word.length();
+            }
+            if (found && connectedDevices.get(i).getStatus()=="Đã kết nối") {
+                Log.d("TAG_device_name", "true");
+                contraint_connect.setVisibility(View.GONE);
+                contraint_connected.setVisibility(View.VISIBLE);
+                cardView3.setVisibility(View.VISIBLE);
+            } else {
+                Log.d("TAG_device_name", "false");
+                contraint_connect.setVisibility(View.VISIBLE);
+                contraint_connected.setVisibility(View.GONE);
+                cardView3.setVisibility(View.GONE);
+            }
+        }
+        setUpDrawWaveView();
+
+
+        tgStreamReader = new TgStreamReader(bluetoothAdapter, callback);
         tgStreamReader.setGetDataTimeOutTime(6);
         tgStreamReader.startLog();
     }
@@ -132,22 +201,42 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void checkLocationPermission() {
+    private void checkAndRequestPermissions() {
+        List<String> permissionsNeeded = new ArrayList<>();
+
+        // Kiểm tra quyền BLUETOOTH_SCAN và BLUETOOTH_CONNECT trên Android 12+ (API >= 31)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.BLUETOOTH_SCAN);
+            }
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.BLUETOOTH_CONNECT);
+            }
+        }
+
+        // Kiểm tra quyền ACCESS_FINE_LOCATION
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Nếu quyền chưa được cấp, yêu cầu quyền từ người dùng
+            permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+
+        // Nếu cần xin bất kỳ quyền nào, yêu cầu tất cả cùng lúc
+        if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(requireActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
+                    permissionsNeeded.toArray(new String[0]),
+                    1001);
         } else {
-            // Quyền đã được cấp
+            // Nếu tất cả các quyền đã được cấp, khởi tạo Bluetooth
             initializeBluetooth();
         }
     }
+
     private void initializeBluetooth() {
-        Toast.makeText(requireContext(), "Bluetooth được khởi tạo!", Toast.LENGTH_SHORT).show();
-        // Add Bluetooth initialization code here
+        Log.d(TAG, "Bluetooth được khởi tạo!");
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -161,15 +250,24 @@ public class HomeFragment extends Fragment {
             }
         }
     }
-    private void initView() {
+
+    private void initView(View view) {
+        rvConnected = view.findViewById(R.id.rv_connected_devices);
+        rvAvailable = view.findViewById(R.id.rv_available_devices);
+        ivRefreshConnected = view.findViewById(R.id.iv_refresh_connected);
+        ivRefreshAvailable = view.findViewById(R.id.iv_refresh_available);
         tv_attention_value = getView().findViewById(R.id.tv_attention_value);
         tv_attention_notification = getView().findViewById(R.id.tv_attention_notification);
-        button_update = getView().findViewById(R.id.btn_update);
-        btn_start = getView().findViewById(R.id.btn_attention_start);
-        btn_stop = getView().findViewById(R.id.btn_attention_stop);
+        Button button_update = getView().findViewById(R.id.btn_update);
+        Button btn_start = getView().findViewById(R.id.btn_attention_start);
+        Button btn_stop = getView().findViewById(R.id.btn_attention_stop);
         wave_layout = getView().findViewById(R.id.wave_layout);
+        contraint_connect = getView().findViewById(R.id.contraint_connect);
+        contraint_connected = getView().findViewById(R.id.contraint_connected);
+        cardView3 = getView().findViewById(R.id.cardView3);
 
         btn_start.setOnClickListener(v -> {
+
             if (isProcessing) {
                 return;
             }
@@ -332,6 +430,139 @@ public class HomeFragment extends Fragment {
         getActivity().startService(intent);
     }
 
+
+    // abc
+    private void checkPermissionsAndStart() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                }, 1001);
+                return;
+            }
+        }
+        startBluetoothProcesses();
+    }
+
+    private void startBluetoothProcesses() {
+        if (!bluetoothAdapter.isEnabled()) {
+            Toast.makeText(getContext(), "Bluetooth chưa được bật", Toast.LENGTH_SHORT).show();
+        } else {
+            fetchPairedDevices();
+            discoverDevices();
+        }
+    }
+
+    private void fetchPairedDevices() {
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        if (pairedDevices != null) {
+            for (BluetoothDevice device : pairedDevices) {
+                String deviceName = device.getName() != null ? device.getName() : "Thiết bị không tên";
+                String deviceAddress = device.getAddress();
+
+                // Kiểm tra nếu thiết bị đã kết nối
+                if (isConnected(device)) {
+                    // Thêm thiết bị đã kết nối vào danh sách
+                    connectedDevices.add(new Device(deviceName, deviceAddress, "Đã kết nối"));
+                } else {
+                    // Thêm thiết bị đã lưu vào danh sách
+                    connectedDevices.add(new Device(deviceName, deviceAddress, "Đã lưu"));
+                }
+            }
+
+            // Cập nhật adapter (notifyDataSetChanged) sau khi thay đổi dữ liệu
+            connectedAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void discoverDevices() {
+        bluetoothAdapter.cancelDiscovery();
+        bluetoothAdapter.startDiscovery();
+        getContext().registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+    }
+
+    private boolean isDeviceInList(String deviceName) {
+        for (Device device : availableDevices) {
+            if (device.getName().equals(deviceName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void connectToDevice(int position) {
+        Device device = availableDevices.get(position);
+        BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
+        try {
+            bluetoothDevice.createBond(); // Request pairing
+            if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
+                connectedDevices.add(new Device(device.getName(), device.getAddress(), "Đã kết nối"));
+                connectedAdapter.notifyDataSetChanged();
+                availableDevices.remove(device);
+                availableAdapter.notifyDataSetChanged();
+                Toast.makeText(getContext(), "Đã kết nối với " + device.getName(), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Kết nối thất bại", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Hủy ghép nối
+    private void unpairDevice(int position) {
+        Device device = connectedDevices.get(position);
+        BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
+
+        try {
+            // Reflection để gọi phương thức removeBond
+            Method removeBondMethod = BluetoothDevice.class.getMethod("removeBond");
+            boolean success = (boolean) removeBondMethod.invoke(bluetoothDevice);
+
+            if (success) {
+                Toast.makeText(getContext(), "Đã hủy ghép nối với " + device.getName(), Toast.LENGTH_SHORT).show();
+                connectedDevices.remove(position);
+                connectedAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(getContext(), "Hủy ghép nối thất bại", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Lỗi khi hủy ghép nối", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void refreshConnectedDevices(ImageView ivRefreshConnected) {
+        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(ivRefreshConnected, "rotation", 0f, 360f);
+        rotateAnimator.setDuration(500); // Thời gian xoay 500ms
+        rotateAnimator.start();
+
+        connectedDevices.clear();
+        fetchPairedDevices();
+    }
+
+    private void refreshAvailableDevices(ImageView ivRefreshAvailable) {
+        // Hiệu ứng xoay
+        ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(ivRefreshAvailable, "rotation", 0f, 360f);
+        rotateAnimator.setDuration(500); // Thời gian xoay 500ms
+        rotateAnimator.start();
+
+        // Làm mới danh sách thiết bị khả dụng
+        bluetoothAdapter.cancelDiscovery();
+        availableDevices.clear();
+        availableAdapter.notifyDataSetChanged();
+        discoverDevices(); // Bắt đầu tìm kiếm thiết bị mới
+    }
+    public static boolean isConnected(BluetoothDevice device) {
+        try {
+            Method method = device.getClass().getMethod("isConnected");
+            return (Boolean) method.invoke(device);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+    //abc
     @Override
     public void onResume() {
         super.onResume();
@@ -348,6 +579,10 @@ public class HomeFragment extends Fragment {
     public void onDestroy() {
         stop();
         super.onDestroy();
+        try {
+            getContext().unregisterReceiver(receiver);
+        } catch (IllegalArgumentException ignored) {
+        }
     }
 
     DrawWaveView waveView = null;
