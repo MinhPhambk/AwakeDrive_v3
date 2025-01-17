@@ -7,6 +7,12 @@
 
     <style name="Theme.Brainwave" parent="Base.Theme.Brainwave">
         <item name="android:windowIsTranslucent">true</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="android:windowBackground">@color/white</item>
+        <!-- Chế độ light status bar -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Màu nền status bar -->
+        <item name="android:statusBarColor">@android:color/white</item>
     </style>
 
     <style name="Theme.BottomNavigation" parent="Theme.MaterialComponents.DayNight.NoActionBar">

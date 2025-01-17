@@ -3,7 +3,12 @@ package com.example.brainwave.model;
 public class Device {
     private final String name;
     private final String address;
-    private final boolean connected;
+    private final String status;
+
+
+    public String getStatus() {
+        return status;
+    }
 
     public String getName() {
         return name;
@@ -13,13 +18,9 @@ public class Device {
         return address;
     }
 
-    public boolean isConnected() {
-        return connected;
-    }
-
-    public Device(String name, String address, boolean connected) {
+    public Device(String name, String address, String status) {
         this.name = name;
         this.address = address;
-        this.connected = connected;
+        this.status = status;
     }
 }

@@ -4,6 +4,9 @@ import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothSocket;
+import android.companion.BluetoothDeviceFilter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +34,12 @@ import com.example.brainwave.R;
 import com.example.brainwave.adapter.DeviceAdapter;
 import com.example.brainwave.model.Device;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class DeviceFragment extends Fragment {
 
@@ -40,14 +47,13 @@ public class DeviceFragment extends Fragment {
     private DeviceAdapter connectedAdapter, availableAdapter;
     private final List<Device> connectedDevices = new ArrayList<>();
     private final List<Device> availableDevices = new ArrayList<>();
-
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device != null && device.getName() != null && !isDeviceInList(device.getName())) {
-                    availableDevices.add(new Device(device.getName(), device.getAddress(), false));
+                    availableDevices.add(new Device(device.getName(), device.getAddress(), "Có sẵn"));
                     availableAdapter.notifyDataSetChanged();
                 }
             }
@@ -87,22 +93,10 @@ public class DeviceFragment extends Fragment {
         ivRefreshConnected.setOnClickListener(v -> refreshConnectedDevices(ivRefreshConnected));
         ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
         availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
-        checkPermissionsAndStart();
-    }
-
-    private void checkPermissionsAndStart() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                        Manifest.permission.BLUETOOTH_SCAN,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                }, 1001);
-                return;
-            }
-        }
+        connectedAdapter.setOnUnpairClickListener((device, position) -> unpairDevice(position));
         startBluetoothProcesses();
     }
+
 
     private void startBluetoothProcesses() {
         if (!bluetoothAdapter.isEnabled()) {
@@ -118,11 +112,23 @@ public class DeviceFragment extends Fragment {
         if (pairedDevices != null) {
             for (BluetoothDevice device : pairedDevices) {
                 String deviceName = device.getName() != null ? device.getName() : "Thiết bị không tên";
-                connectedDevices.add(new Device(deviceName, device.getAddress(), true));
+                String deviceAddress = device.getAddress();
+
+                // Kiểm tra nếu thiết bị đã kết nối
+                if (isConnected(device)) {
+                    // Thêm thiết bị đã kết nối vào danh sách
+                    connectedDevices.add(new Device(deviceName, deviceAddress, "Đã kết nối"));
+                } else {
+                    // Thêm thiết bị đã lưu vào danh sách
+                    connectedDevices.add(new Device(deviceName, deviceAddress, "Đã lưu"));
+                }
             }
+
+            // Cập nhật adapter (notifyDataSetChanged) sau khi thay đổi dữ liệu
             connectedAdapter.notifyDataSetChanged();
         }
     }
+
 
     private void discoverDevices() {
         bluetoothAdapter.cancelDiscovery();
@@ -145,7 +151,7 @@ public class DeviceFragment extends Fragment {
         try {
             bluetoothDevice.createBond(); // Request pairing
             if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                connectedDevices.add(new Device(device.getName(), device.getAddress(), true));
+                connectedDevices.add(new Device(device.getName(), device.getAddress(), "Đã kết nối"));
                 connectedAdapter.notifyDataSetChanged();
                 availableDevices.remove(device);
                 availableAdapter.notifyDataSetChanged();
@@ -154,7 +160,32 @@ public class DeviceFragment extends Fragment {
         } catch (Exception e) {
             Toast.makeText(getContext(), "Kết nối thất bại", Toast.LENGTH_SHORT).show();
         }
+
     }
+
+    // Hủy ghép nối
+    private void unpairDevice(int position) {
+        Device device = connectedDevices.get(position);
+        BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
+
+        try {
+            // Reflection để gọi phương thức removeBond
+            Method removeBondMethod = BluetoothDevice.class.getMethod("removeBond");
+            boolean success = (boolean) removeBondMethod.invoke(bluetoothDevice);
+
+            if (success) {
+                Toast.makeText(getContext(), "Đã hủy ghép nối với " + device.getName(), Toast.LENGTH_SHORT).show();
+                connectedDevices.remove(position);
+                connectedAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(getContext(), "Hủy ghép nối thất bại", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Lỗi khi hủy ghép nối", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void refreshConnectedDevices(ImageView ivRefreshConnected) {
         // Hiệu ứng xoay
@@ -178,6 +209,15 @@ public class DeviceFragment extends Fragment {
         availableDevices.clear();
         availableAdapter.notifyDataSetChanged();
         discoverDevices(); // Bắt đầu tìm kiếm thiết bị mới
+    }
+
+    public static boolean isConnected(BluetoothDevice device) {
+        try {
+            Method method = device.getClass().getMethod("isConnected");
+            return (Boolean) method.invoke(device);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
