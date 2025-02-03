@@ -124,16 +124,22 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
+            android:id="@+id/img_google"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/google"
+            android:scaleType="centerCrop"
+            android:background="?android:attr/selectableItemBackground"
             android:contentDescription="Google" />
 
         <ImageView
+            android:id="@+id/img_facebook"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="20dp"
             android:src="@drawable/facebook"
+            android:scaleType="centerCrop"
+            android:background="?android:attr/selectableItemBackground"
             android:contentDescription="Facebook" />
 
         <ImageView

@@ -41,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="jenky.tran@gmail.com"
-            android:textColor="@android:color/darker_gray"
             android:textSize="14sp" />
     </LinearLayout>
 

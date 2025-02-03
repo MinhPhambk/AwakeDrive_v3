@@ -22,6 +22,24 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
     private final List<Device> devices;
     private OnItemClickListener onItemClickListener;
     private OnUnpairClickListener onUnpairClickListener;
+    private OnConnectClickListener onConnectClickListener;
+    private OnDisconnectClickListener onDisconnectClickListener;
+
+    public interface OnConnectClickListener {
+        void onConnectClick(Device device, int position);
+    }
+
+    public interface OnDisconnectClickListener {
+        void onDisconnectClick(Device device, int position);
+    }
+
+    public void setOnConnectClickListener(OnConnectClickListener listener) {
+        this.onConnectClickListener = listener;
+    }
+
+    public void setOnDisconnectClickListener(OnDisconnectClickListener listener) {
+        this.onDisconnectClickListener = listener;
+    }
 
     public interface OnItemClickListener {
         void onItemClick(Device device, int position);

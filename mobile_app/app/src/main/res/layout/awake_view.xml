@@ -48,23 +48,17 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <!-- Nội dung của ConstraintLayout -->
-                <androidx.cardview.widget.CardView
+                <ImageView
+                    android:id="@+id/img_avatar_user_visible"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    app:cardCornerRadius="150dp"
+                    android:scaleType="centerCrop"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="50dp"
-                        android:layout_height="70dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/avatar" />
-                </androidx.cardview.widget.CardView>
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:src="@drawable/avatar" />
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/txt_name_user_visible"
                     android:layout_width="213dp"
                     android:layout_height="21dp"
                     android:layout_marginStart="60dp"
@@ -83,7 +77,7 @@
                     android:text="Chú chim dậy sớm lun bắt được sâu"
                     android:textSize="13sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView" />
+                    app:layout_constraintTop_toBottomOf="@+id/txt_name_user_visible" />
 
                 <ImageButton
                     android:id="@+id/circleButton"
@@ -325,23 +319,17 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <!-- Nội dung của ConstraintLayout -->
-                <androidx.cardview.widget.CardView
+                <ImageView
+                    android:id="@+id/img_avatar_user"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    app:cardCornerRadius="150dp"
+                    android:scaleType="centerCrop"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:id="@+id/imageView_"
-                        android:layout_width="50dp"
-                        android:layout_height="70dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/avatar" />
-                </androidx.cardview.widget.CardView>
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:src="@drawable/avatar" />
 
                 <TextView
-                    android:id="@+id/textView_"
+                    android:id="@+id/txt_name_user"
                     android:layout_width="213dp"
                     android:layout_height="21dp"
                     android:layout_marginStart="60dp"
@@ -360,7 +348,7 @@
                     android:text="Chú chim dậy sớm lun bắt được sâu"
                     android:textSize="13sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView_" />
+                    app:layout_constraintTop_toBottomOf="@+id/txt_name_user" />
 
                 <ImageButton
                     android:id="@+id/circleButton_"
