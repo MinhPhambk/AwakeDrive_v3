@@ -3,8 +3,11 @@ package com.example.brainwave.model;
 public class Device {
     private final String name;
     private final String address;
-    private final String status;
+    private String status;
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getStatus() {
         return status;

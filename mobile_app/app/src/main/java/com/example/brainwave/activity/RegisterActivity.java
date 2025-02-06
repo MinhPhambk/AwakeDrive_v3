@@ -4,19 +4,31 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.MotionEvent;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.brainwave.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 
 public class RegisterActivity extends AppCompatActivity {
-    private EditText edt_password, edt_confirm_password;
+    private EditText edt_password, edt_confirm_password, edt_last_name, edt_first_name, edt_email;
     private TextView tv_already_have_account;
     private boolean isPasswordVisible = false;
+    private Button btn_register;
+    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +38,53 @@ public class RegisterActivity extends AppCompatActivity {
         ontouch_pass();
         ontouch_confirm_pass();
         onlick_already_have_account();
+        btn_register.setOnClickListener(v -> signUp());
+    }
+
+    private void signUp() {
+        firebaseAuth = FirebaseAuth.getInstance();
+        String first_name = edt_first_name.getText().toString();
+        String last_name = edt_last_name.getText().toString();
+        String email = edt_email.getText().toString();
+        String pass = edt_password.getText().toString();
+        String re_pass = edt_confirm_password.getText().toString();
+        if(!TextUtils.isEmpty(first_name) && !TextUtils.isEmpty(last_name) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(pass) && !TextUtils.isEmpty(re_pass)){
+            if(pass.equals(re_pass)){
+                firebaseAuth.createUserWithEmailAndPassword(email,pass).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                            if (user != null) {
+                                user.sendEmailVerification()
+                                        .addOnCompleteListener(verificationTask -> {
+                                            if (verificationTask.isSuccessful()) {
+                                                Intent intent=new Intent(getApplicationContext(),EmailConfirmActivity.class);
+                                                intent.putExtra("email",email);
+                                                startActivity(intent);
+                                                finish();
+                                            } else {
+                                                Toast.makeText(getApplicationContext(), "Lỗi khi gửi email xác nhận!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(first_name+" "+last_name)
+                                        .build();
+
+                                user.updateProfile(profileChangeRequest);
+                            }
+//                            Toast.makeText(getApplicationContext(),"Đăng kí thành công", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Email đã tồn tại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }else{
+                Toast.makeText(getApplicationContext(),"Mật khẩu không trùng khớp", Toast.LENGTH_SHORT).show();
+            }
+        }else {
+            Toast.makeText(getApplicationContext(),"Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void onlick_already_have_account() {
@@ -83,5 +142,9 @@ public class RegisterActivity extends AppCompatActivity {
         edt_password = findViewById(R.id.edt_password);
         edt_confirm_password = findViewById(R.id.edt_confirm_password);
         tv_already_have_account=findViewById(R.id.tv_already_have_account);
+        edt_first_name=findViewById(R.id.edt_first_name);
+        edt_last_name=findViewById(R.id.edt_last_name);
+        edt_email=findViewById(R.id.edt_email);
+        btn_register=findViewById(R.id.btn_register);
     }
 }

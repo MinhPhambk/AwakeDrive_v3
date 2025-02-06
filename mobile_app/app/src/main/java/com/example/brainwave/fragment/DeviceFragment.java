@@ -37,6 +37,7 @@ import com.example.brainwave.model.Device;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -93,6 +94,7 @@ public class DeviceFragment extends Fragment {
         ivRefreshConnected.setOnClickListener(v -> refreshConnectedDevices(ivRefreshConnected));
         ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
         availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
+//        connectedAdapter.setOnItemClickListener((device, position) -> connectInPairedDevices(position));
         connectedAdapter.setOnUnpairClickListener((device, position) -> unpairDevice(position));
         startBluetoothProcesses();
     }

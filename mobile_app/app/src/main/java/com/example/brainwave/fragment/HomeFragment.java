@@ -35,6 +35,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.brainwave.AlertService;
 import com.example.brainwave.AttentionActivity;
 import com.example.brainwave.DrawWaveView;
@@ -43,6 +44,8 @@ import com.example.brainwave.R;
 import com.example.brainwave.TrainModel;
 import com.example.brainwave.adapter.DeviceAdapter;
 import com.example.brainwave.model.Device;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.neurosky.connection.ConnectionStates;
 import com.neurosky.connection.DataType.MindDataType;
 import com.neurosky.connection.EEGPower;
@@ -73,8 +76,7 @@ public class HomeFragment extends Fragment {
 
     public static Intent intent;
 
-    private TextView tv_attention_value;
-    private TextView tv_attention_notification;
+    private TextView tv_attention_value, tv_attention_notification, txt_name_user, txt_name_user_visible;
     private int badPacketCount = 0;
     private int numbeOfSamples = 0;
     private static final int MAX_SAMPLES = 5;
@@ -175,7 +177,7 @@ public class HomeFragment extends Fragment {
                 }
                 index += word.length();
             }
-            if (found && connectedDevices.get(i).getStatus()=="Đã kết nối") {
+            if (found && connectedDevices.get(i).getStatus() == "Đã kết nối") {
                 Log.d("TAG_device_name", "true");
                 contraint_connect.setVisibility(View.GONE);
                 contraint_connected.setVisibility(View.VISIBLE);
@@ -265,7 +267,23 @@ public class HomeFragment extends Fragment {
         contraint_connect = getView().findViewById(R.id.contraint_connect);
         contraint_connected = getView().findViewById(R.id.contraint_connected);
         cardView3 = getView().findViewById(R.id.cardView3);
-
+        txt_name_user = view.findViewById(R.id.txt_name_user);
+        txt_name_user_visible = view.findViewById(R.id.txt_name_user_visible);
+        FirebaseAuth firebaseAuth=FirebaseAuth.getInstance();
+        FirebaseUser user=firebaseAuth.getCurrentUser();
+        if(user.getDisplayName()!=null){
+            txt_name_user.setText("Xin chào, "+user.getDisplayName().toString()+"!");
+            txt_name_user_visible.setText("Xin chào, "+user.getDisplayName().toString()+"!");
+        }
+        ImageView img_avatar_user=view.findViewById(R.id.img_avatar_user);
+        ImageView img_avatar_user_visible=view.findViewById(R.id.img_avatar_user_visible);
+        if(user.getPhotoUrl()!=null){
+            Glide.with(this).load(user.getPhotoUrl()).circleCrop().into(img_avatar_user);
+            Glide.with(this).load(user.getPhotoUrl()).circleCrop().into(img_avatar_user_visible);
+        }else {
+            Glide.with(this).load(R.drawable.avatar).circleCrop().into(img_avatar_user);
+            Glide.with(this).load(R.drawable.avatar).circleCrop().into(img_avatar_user_visible);
+        }
         btn_start.setOnClickListener(v -> {
 
             if (isProcessing) {
@@ -554,6 +572,7 @@ public class HomeFragment extends Fragment {
         availableAdapter.notifyDataSetChanged();
         discoverDevices(); // Bắt đầu tìm kiếm thiết bị mới
     }
+
     public static boolean isConnected(BluetoothDevice device) {
         try {
             Method method = device.getClass().getMethod("isConnected");
@@ -562,6 +581,7 @@ public class HomeFragment extends Fragment {
             throw new IllegalStateException(e);
         }
     }
+
     //abc
     @Override
     public void onResume() {
