@@ -1,10 +1,14 @@
 package com.example.brainwave.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.Signature;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Button;
@@ -39,6 +43,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import oshi.util.Util;
@@ -67,7 +73,6 @@ public class LoginActivity extends AppCompatActivity {
         ontouch_pass();
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user = firebaseAuth.getCurrentUser();
-
         // Kiểm tra nếu AccessToken của Facebook hợp lệ và người dùng đã đăng nhập
         AccessToken currentAccessToken = AccessToken.getCurrentAccessToken();
         if (currentAccessToken != null && !currentAccessToken.isExpired()) {
@@ -154,7 +159,21 @@ public class LoginActivity extends AppCompatActivity {
         });
 
     }
-
+//    public static void printHashKey(Context pContext) {
+//        try {
+//            PackageInfo info = pContext.getPackageManager().getPackageInfo(pContext.getPackageName(), PackageManager.GET_SIGNATURES);
+//            for (Signature signature : info.signatures) {
+//                MessageDigest md = MessageDigest.getInstance("SHA");
+//                md.update(signature.toByteArray());
+//                String hashKey = new String(Base64.encode(md.digest(), 0));
+//                Log.i(, "printHashKey() Hash Key: " + hashKey);
+//            }
+//        } catch (NoSuchAlgorithmException e) {
+//            Log.e(TAG, "printHashKey()", e);
+//        } catch (Exception e) {
+//            Log.e(TAG, "printHashKey()", e);
+//        }
+//    }
 
     @SuppressLint({"ClickableViewAccessibility", "UseCompatLoadingForDrawables"})
     private void ontouch_pass() {

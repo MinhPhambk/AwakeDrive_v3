@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -165,7 +167,7 @@ public class HomeFragment extends Fragment {
 
         for (int i = 0; i < connectedDevices.size(); i++) {
             String device_name = connectedDevices.get(i).getName().trim();
-            String device_name_correct = "BT keyboard";
+            String device_name_correct = "AwD";
             String[] words = device_name_correct.split(" ");
             int index = 0;
             boolean found = true;
@@ -177,17 +179,17 @@ public class HomeFragment extends Fragment {
                 }
                 index += word.length();
             }
-            if (found && connectedDevices.get(i).getStatus() == "Đã kết nối") {
-                Log.d("TAG_device_name", "true");
-                contraint_connect.setVisibility(View.GONE);
-                contraint_connected.setVisibility(View.VISIBLE);
-                cardView3.setVisibility(View.VISIBLE);
-            } else {
-                Log.d("TAG_device_name", "false");
-                contraint_connect.setVisibility(View.VISIBLE);
-                contraint_connected.setVisibility(View.GONE);
-                cardView3.setVisibility(View.GONE);
-            }
+//            if (found && connectedDevices.get(i).getStatus() == "Đã kết nối") {
+//                Log.d("TAG_device_name", "true");
+//                contraint_connect.setVisibility(View.GONE);
+//                contraint_connected.setVisibility(View.VISIBLE);
+//                cardView3.setVisibility(View.VISIBLE);
+//            } else {
+//                Log.d("TAG_device_name", "false");
+//                contraint_connect.setVisibility(View.VISIBLE);
+//                contraint_connected.setVisibility(View.GONE);
+//                cardView3.setVisibility(View.GONE);
+//            }
         }
         setUpDrawWaveView();
 
@@ -264,57 +266,74 @@ public class HomeFragment extends Fragment {
         Button btn_start = getView().findViewById(R.id.btn_attention_start);
         Button btn_stop = getView().findViewById(R.id.btn_attention_stop);
         wave_layout = getView().findViewById(R.id.wave_layout);
-        contraint_connect = getView().findViewById(R.id.contraint_connect);
+//        contraint_connect = getView().findViewById(R.id.contraint_connect);
         contraint_connected = getView().findViewById(R.id.contraint_connected);
         cardView3 = getView().findViewById(R.id.cardView3);
-        txt_name_user = view.findViewById(R.id.txt_name_user);
+//        txt_name_user = view.findViewById(R.id.txt_name_user);
         txt_name_user_visible = view.findViewById(R.id.txt_name_user_visible);
         FirebaseAuth firebaseAuth=FirebaseAuth.getInstance();
         FirebaseUser user=firebaseAuth.getCurrentUser();
-        if(user.getDisplayName()!=null){
-            txt_name_user.setText("Xin chào, "+user.getDisplayName().toString()+"!");
-            txt_name_user_visible.setText("Xin chào, "+user.getDisplayName().toString()+"!");
-        }
-        ImageView img_avatar_user=view.findViewById(R.id.img_avatar_user);
+//        if(user.getDisplayName()!=null){
+//            txt_name_user.setText("Xin chào, "+user.getDisplayName().toString()+"!");
+//            txt_name_user_visible.setText("Xin chào, "+user.getDisplayName().toString()+"!");
+//        }
+//        ImageView img_avatar_user=view.findViewById(R.id.img_avatar_user);
         ImageView img_avatar_user_visible=view.findViewById(R.id.img_avatar_user_visible);
         if(user.getPhotoUrl()!=null){
-            Glide.with(this).load(user.getPhotoUrl()).circleCrop().into(img_avatar_user);
+//            Glide.with(this).load(user.getPhotoUrl()).circleCrop().into(img_avatar_user);
             Glide.with(this).load(user.getPhotoUrl()).circleCrop().into(img_avatar_user_visible);
         }else {
-            Glide.with(this).load(R.drawable.avatar).circleCrop().into(img_avatar_user);
+//            Glide.with(this).load(R.drawable.avatar).circleCrop().into(img_avatar_user);
             Glide.with(this).load(R.drawable.avatar).circleCrop().into(img_avatar_user_visible);
         }
-        btn_start.setOnClickListener(v -> {
-
-            if (isProcessing) {
-                return;
-            }
-            showToast("Connecting...", Toast.LENGTH_SHORT);
-            numbeOfSamples = 0;
-            isProcessing = true;
-            tv_attention_notification.setText("Monitoring ...");
-
-            badPacketCount = 0;
-
-            // Load model
-            try {
-                if (TrainModel.model == null) {
-                    File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
-                    TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
+        btn_start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                if (isProcessing) {
+                    return;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                showToast("Connecting...", Toast.LENGTH_SHORT);
+                numbeOfSamples = 0;
+                isProcessing = true;
+                tv_attention_notification.setText("Monitoring ...");
+
+                badPacketCount = 0;
+
+                // load model
+                try {
+                    if (TrainModel.model == null) {
+//                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
+                        File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
+                        System.out.println("Model file path:");
+                        System.out.println(pathFile);
+                        TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+                if(tgStreamReader != null && tgStreamReader.isBTConnected()){
+
+                    // Prepare for connecting
+                    tgStreamReader.stop();
+                    tgStreamReader.close();
+                }
+
+                tgStreamReader.connect();
+//				tgStreamReader.connectAndStart();
+
             }
 
-            if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
-                tgStreamReader.stop();
-                tgStreamReader.close();
-            }
-
-            tgStreamReader.connect();
         });
+        btn_stop.setOnClickListener(new View.OnClickListener() {
 
-        btn_stop.setOnClickListener(v -> stop());
+            @Override
+            public void onClick(View arg0) {
+                stop();
+            }
+
+        });
 
         button_update.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -428,8 +447,8 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private void stop() {
-        if (tgStreamReader != null) {
+    public void stop() {
+        if(tgStreamReader != null){
             tgStreamReader.stop();
             tgStreamReader.close();
         }
@@ -622,8 +641,11 @@ public class HomeFragment extends Fragment {
     }
 
     private TgStreamHandler callback = new TgStreamHandler() {
+
         @Override
         public void onStatesChanged(int connectionStates) {
+            // TODO Auto-generated method stub
+            Log.d(TAG, "connectionStates change to: " + connectionStates);
             switch (connectionStates) {
                 case ConnectionStates.STATE_CONNECTING:
                     break;
@@ -633,7 +655,7 @@ public class HomeFragment extends Fragment {
                     break;
                 case ConnectionStates.STATE_WORKING:
                     tgStreamReader.startRecordRawData();
-
+                    Log.d("Tagggggg", connectionStates+"");
                     break;
                 case ConnectionStates.STATE_GET_DATA_TIME_OUT:
                     tgStreamReader.stopRecordRawData();
@@ -651,53 +673,73 @@ public class HomeFragment extends Fragment {
                     showToast("Connection failed!\nPlease check your bluetooth device", Toast.LENGTH_SHORT);
                     break;
             }
-        }
-
-        @Override
-        public void onDataReceived(int datatype, int data, Object obj) {
             Message msg = LinkDetectedHandler.obtainMessage();
-            msg.what = datatype;
-            msg.arg1 = data;
-            msg.obj = obj;
+            msg.what = MSG_UPDATE_STATE;
+            msg.arg1 = connectionStates;
             LinkDetectedHandler.sendMessage(msg);
         }
 
         @Override
         public void onRecordFail(int flag) {
-            Log.e(TAG, "onRecordFail: " + flag);
+            // handle the record error message
+            Log.e(TAG,"onRecordFail: " +flag);
+
         }
 
         @Override
         public void onChecksumFail(byte[] payload, int length, int checksum) {
-            badPacketCount++;
+            // handle the bad packets.
+            badPacketCount ++;
             Message msg = LinkDetectedHandler.obtainMessage();
             msg.what = MSG_UPDATE_BAD_PACKET;
             msg.arg1 = badPacketCount;
             LinkDetectedHandler.sendMessage(msg);
+
         }
+
+        @Override
+        public void onDataReceived(int datatype, int data, Object obj) {
+            // handle the received data
+            Message msg = LinkDetectedHandler.obtainMessage();
+            msg.what = datatype;
+            msg.arg1 = data;
+            msg.obj = obj;
+            LinkDetectedHandler.sendMessage(msg);
+
+            //Log.i(TAG,"onDataReceived");
+        }
+
     };
 
     private static final int MSG_UPDATE_BAD_PACKET = 1001;
     private static final int MSG_UPDATE_STATE = 1002;
 
     private Handler LinkDetectedHandler = new Handler() {
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MindDataType.CODE_RAW:
                     updateWaveView(msg.arg1);
                     break;
+                case MindDataType.CODE_MEDITATION:
+                    Log.d(TAG, "HeadDataType.CODE_MEDITATION " + msg.arg1);
+                    break;
+                case MindDataType.CODE_ATTENTION:
+                    Log.d(TAG, "CODE_ATTENTION " + msg.arg1);
+                    break;
                 case MindDataType.CODE_EEGPOWER:
-                    if (isPoorSignal) {
+                    if (isPoorSignal == true) {
                         isPoorSignal = false;
                         break;
                     }
-                    EEGPower power = (EEGPower) msg.obj;
-                    if (power.isValidate()) {
-                        if (numbeOfSamples >= MAX_SAMPLES) {
+                    EEGPower power = (EEGPower)msg.obj;
+                    if(power.isValidate()){
+                        if(numbeOfSamples >= MAX_SAMPLES) {
                             numbeOfSamples = 0;
                             dataForInfer = dataCollected.clone();
-                            new AsyncTaskInfer().execute();
+                            HomeFragment.AsyncTaskInfer runner = new AsyncTaskInfer();
+                            runner.execute();
                         }
                         dataCollected[numbeOfSamples] = power;
                         numbeOfSamples++;
@@ -705,13 +747,20 @@ public class HomeFragment extends Fragment {
                     break;
                 case MindDataType.CODE_POOR_SIGNAL:
                     int poorSignal = msg.arg1;
+                    Log.d(TAG, "poorSignal:" + poorSignal);
                     if (poorSignal > 0) {
                         isPoorSignal = true;
                     }
+
+                    break;
+                case MSG_UPDATE_BAD_PACKET:
+
                     break;
                 default:
                     break;
             }
+
+            super.handleMessage(msg);
         }
     };
 
@@ -724,72 +773,49 @@ public class HomeFragment extends Fragment {
 
         @Override
         protected Void doInBackground(Void... params) {
-            // Lấy dữ liệu EEG để phân loại
+            // run training process here
             EEGPower[] EEGdata = dataForInfer.clone();
-            double[] sample = new double[NUMBER_OF_FEATURES];
+            double [] sample = new double[NUMBER_OF_FEATURES];
+            for (int i = 0; i<MAX_SAMPLES; i++) {
+                sample[i*16] = EEGdata[i].delta;
+                sample[i*16+1] = EEGdata[i].theta;
+                sample[i*16+2] = EEGdata[i].lowAlpha;
+                sample[i*16+3] = EEGdata[i].highAlpha;
+                sample[i*16+4] = EEGdata[i].lowBeta;
+                sample[i*16+5] = EEGdata[i].highBeta;
 
-            for (int i = 0; i < MAX_SAMPLES; i++) {
-                if (i * 16 + 15 >= sample.length) break;  // Tránh lỗi ngoài phạm vi mảng
+                sample[i*16+6] = (double) EEGdata[i].delta/EEGdata[i].theta;
+                sample[i*16+7] = (double)EEGdata[i].delta/EEGdata[i].lowAlpha;
+                sample[i*16+8] = (double)EEGdata[i].delta/EEGdata[i].highAlpha;
+                sample[i*16+9] = (double)EEGdata[i].delta/EEGdata[i].lowBeta;
+                sample[i*16+10] = (double)EEGdata[i].delta/EEGdata[i].highBeta;
 
-                sample[i * 16] = EEGdata[i].delta;
-                sample[i * 16 + 1] = EEGdata[i].theta;
-                sample[i * 16 + 2] = EEGdata[i].lowAlpha;
-                sample[i * 16 + 3] = EEGdata[i].highAlpha;
-                sample[i * 16 + 4] = EEGdata[i].lowBeta;
-                sample[i * 16 + 5] = EEGdata[i].highBeta;
+                sample[i*16+11] = (double)EEGdata[i].theta/EEGdata[i].lowAlpha;
+                sample[i*16+12] = (double)EEGdata[i].theta/EEGdata[i].highAlpha;
+                sample[i*16+13] = (double)EEGdata[i].theta/EEGdata[i].lowBeta;
+                sample[i*16+14] = (double)EEGdata[i].theta/EEGdata[i].highBeta;
 
-                // Cách tính các chỉ số tỷ lệ
-                if (EEGdata[i].theta != 0)
-                    sample[i * 16 + 6] = (double) EEGdata[i].delta / EEGdata[i].theta;
-                if (EEGdata[i].lowAlpha != 0)
-                    sample[i * 16 + 7] = (double) EEGdata[i].delta / EEGdata[i].lowAlpha;
-                if (EEGdata[i].highAlpha != 0)
-                    sample[i * 16 + 8] = (double) EEGdata[i].delta / EEGdata[i].highAlpha;
-                if (EEGdata[i].lowBeta != 0)
-                    sample[i * 16 + 9] = (double) EEGdata[i].delta / EEGdata[i].lowBeta;
-                if (EEGdata[i].highBeta != 0)
-                    sample[i * 16 + 10] = (double) EEGdata[i].delta / EEGdata[i].highBeta;
-
-                if (EEGdata[i].lowAlpha != 0)
-                    sample[i * 16 + 11] = (double) EEGdata[i].theta / EEGdata[i].lowAlpha;
-                if (EEGdata[i].highAlpha != 0)
-                    sample[i * 16 + 12] = (double) EEGdata[i].theta / EEGdata[i].highAlpha;
-                if (EEGdata[i].lowBeta != 0)
-                    sample[i * 16 + 13] = (double) EEGdata[i].theta / EEGdata[i].lowBeta;
-                if (EEGdata[i].highBeta != 0)
-                    sample[i * 16 + 14] = (double) EEGdata[i].theta / EEGdata[i].highBeta;
-
-                // Tính tỷ lệ kết hợp giữa các dải tần
-                double denominator = EEGdata[i].lowAlpha + EEGdata[i].highAlpha + EEGdata[i].lowBeta + EEGdata[i].highBeta;
-                if (denominator != 0) {
-                    sample[i * 16 + 15] = (double) (EEGdata[i].delta + EEGdata[i].theta) / denominator;
-                }
+                sample[i*16+15] = (double)(EEGdata[i].delta + EEGdata[i].theta) / (EEGdata[i].lowAlpha + EEGdata[i].highAlpha + EEGdata[i].lowBeta +EEGdata[i].highBeta);
             }
 
-            // Chuyển đổi mảng sample thành INDArray
             INDArray sample_to_infer = Nd4j.create(ArrayUtil.flattenDoubleArray(sample), sampleShape);
-
-            // Sử dụng mô hình để dự đoán
             INDArray predicted = TrainModel.model.output(sample_to_infer, false);
             INDArray index = predicted.argMax();
             int[] pl = index.toIntVector();
-
-            // Cập nhật trạng thái dự đoán
             currentStatus = pl[0];
-
-            // Kiểm tra điều kiện để kích hoạt cảnh báo
-            if (pl[0] == 0) {
+            if(pl[0] == 0) {
                 alertService();
             }
 
             return null;
         }
 
+        //This block executes in UI when background thread finishes
+        //This is where we update the UI with our classification results
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            // Cập nhật UI với kết quả phân loại
             String predicted_label = "You are " + LocalDataSet.statues[currentStatus].toLowerCase() + ".";
             tv_attention_value.setText(predicted_label);
         }
@@ -823,7 +849,6 @@ public class HomeFragment extends Fragment {
         // Method to extract features for classification
         return new double[NUMBER_OF_FEATURES]; // Placeholder
     }
-
     private void setFailState() {
         getActivity().runOnUiThread(new Runnable() {
             @Override
