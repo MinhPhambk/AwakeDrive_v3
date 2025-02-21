@@ -57,9 +57,11 @@
 
         <!-- Thông tin tài khoản -->
         <LinearLayout
+            android:id="@+id/line_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:background="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -81,9 +83,11 @@
 
         <!-- Lịch sử đo đạc -->
         <LinearLayout
+            android:id="@+id/line_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:background="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -129,9 +133,11 @@
 
         <!-- Hỗ trợ & Góp ý -->
         <LinearLayout
+            android:id="@+id/line_support"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:background="?android:attr/selectableItemBackground"
             android:padding="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -182,6 +188,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

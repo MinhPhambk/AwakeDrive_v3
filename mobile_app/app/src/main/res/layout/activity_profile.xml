@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/header_section"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="250dp"
         android:background="#66CCFF"
         android:gravity="center"
         android:orientation="vertical"
@@ -20,28 +20,12 @@
 
         <ImageView
             android:id="@+id/avatar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:scaleType="centerCrop"
+            android:layout_margin="10dp"
+            android:scaleType="fitXY"
             android:src="@drawable/avatar" />
-
-        <TextView
-            android:id="@+id/tv_username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Jenky Tran"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="jenky.tran@gmail.com"
-            android:textSize="14sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -52,6 +36,7 @@
         app:layout_constraintTop_toBottomOf="@+id/header_section">
 
         <TextView
+            android:id="@+id/tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -62,6 +47,7 @@
             android:textSize="18sp" />
 
         <TextView
+            android:id="@+id/tv_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
