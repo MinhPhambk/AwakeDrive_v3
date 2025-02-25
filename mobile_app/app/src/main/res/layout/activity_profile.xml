@@ -66,18 +66,33 @@
             android:layout_marginBottom="10dp"
             android:text="Mật khẩu: "
             android:textSize="18sp" />
-
-        <EditText
-            android:id="@+id/emailInput"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/edittext_background"
-            android:drawableEnd="@drawable/ic_eye_close"
-            android:inputType="textPassword"
-            android:padding="10dp"
-            android:text="abcasdasd"
-            app:layout_constraintWidth_percent="0.90" />
+            android:weightSum="10"
+            android:layout_height="50dp">
+            <EditText
+                android:id="@+id/pass"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="9"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:focusable="false"
+                android:clickable="false"
+                android:background="@drawable/edittext_background"
+                android:inputType="textPassword"
+                android:padding="10dp"
+                android:text="abcasdasd"
+                app:layout_constraintWidth_percent="0.90" />
+            <ImageView
+                android:id="@+id/edit_pass"
+                android:src="@drawable/edit"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_gravity="center"
+                android:layout_height="30dp"/>
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

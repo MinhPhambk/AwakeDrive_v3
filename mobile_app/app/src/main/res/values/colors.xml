@@ -19,4 +19,7 @@
     <color name="primary_blue">#63CBFE</color>
     <color name="secondary_blue">#02ABFD</color>
 
+
+    <color name="dark_gray">#121212</color>
+
 </resources>

@@ -13,6 +13,8 @@
         <item name="android:windowLightStatusBar">true</item>
         <!-- Màu nền status bar -->
         <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:textColorPrimary">@color/black</item>
+
     </style>
 
     <style name="Theme.BottomNavigation" parent="Theme.MaterialComponents.DayNight.NoActionBar">
@@ -28,4 +30,5 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
 </resources>

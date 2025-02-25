@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.Signature;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,6 +22,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import com.example.brainwave.R;
 import com.facebook.AccessToken;
@@ -59,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth;
     private static final int RC_SIGN_IN = 100;
     private CallbackManager callbackManager;
+    private ConstraintLayout contrain_layout;
 
 
     @Override
@@ -71,6 +76,12 @@ public class LoginActivity extends AppCompatActivity {
         onclick_forgot();
         onclick_register();
         ontouch_pass();
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            contrain_layout.setBackgroundColor(Color.BLACK);
+        } else {
+            contrain_layout.setBackground(ContextCompat.getDrawable(this,R.drawable.gradient_background));
+        }
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user = firebaseAuth.getCurrentUser();
         // Kiểm tra nếu AccessToken của Facebook hợp lệ và người dùng đã đăng nhập
@@ -273,5 +284,6 @@ public class LoginActivity extends AppCompatActivity {
         img_facebook = findViewById(R.id.img_facebook);
         img_google = findViewById(R.id.img_google);
         img_facebook = findViewById(R.id.img_facebook);
+        contrain_layout = findViewById(R.id.contrain_layout);
     }
 }

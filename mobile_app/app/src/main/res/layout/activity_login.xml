@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/contrain_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background">
@@ -10,11 +10,11 @@
         android:id="@+id/logoImageView"
         android:layout_width="350dp"
         android:layout_height="250dp"
-        android:src="@drawable/logo"
         android:contentDescription="Logo"
-        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/logo"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Tiêu đề -->
     <TextView
@@ -22,25 +22,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Đăng nhập"
-        android:textColor="#000000"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/logoImageView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/logoImageView" />
 
     <!-- Email/Phone Input -->
     <EditText
         android:id="@+id/email_login"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:padding="10dp"
         android:layout_marginTop="10dp"
-        android:hint="Email hoặc số điện thoại..."
         android:background="@drawable/edittext_background"
-        app:layout_constraintTop_toBottomOf="@id/titleTextView"
-        app:layout_constraintStart_toStartOf="parent"
+        android:hint="Email hoặc số điện thoại..."
+        android:padding="10dp"
+        android:textColorHint="#F26B6B6B"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
         app:layout_constraintWidth_percent="0.90" />
 
     <!-- Password Input -->
@@ -50,15 +50,15 @@
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/edittext_background"
-        android:hint="Mật khẩu"
-        android:padding="10dp"
-        android:inputType="textPassword"
         android:drawableEnd="@drawable/ic_eye_close"
-        app:layout_constraintTop_toBottomOf="@id/email_login"
-        app:layout_constraintStart_toStartOf="parent"
+        android:hint="Mật khẩu"
+        android:inputType="textPassword"
+        android:padding="10dp"
+        android:textColorHint="#F26B6B6B"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/email_login"
         app:layout_constraintWidth_percent="0.90" />
-
 
 
     <!-- Login Button -->
@@ -66,51 +66,51 @@
         android:id="@+id/loginButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Đăng nhập"
-        android:backgroundTint="#008CFF"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/password_login"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"
+        android:backgroundTint="#008CFF"
+        android:text="Đăng nhập"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/password_login"
         app:layout_constraintWidth_percent="0.3" />
 
     <!-- Forgot Password -->
     <LinearLayout
         android:id="@+id/line1"
-        app:layout_constraintTop_toBottomOf="@id/loginButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginButton">
+
         <TextView
-            android:text="Không nhớ mật khẩu? "
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="Không nhớ mật khẩu? " />
+
         <TextView
             android:id="@+id/forgotPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackground"
             android:text="Quên mật khẩu"
-            android:textColor="#008CFF"
-            />
+            android:textColor="#008CFF" />
     </LinearLayout>
 
 
     <!-- Social Login Section -->
     <TextView
-        android:layout_marginTop="70dp"
         android:id="@+id/socialLoginText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
         android:text="Hoặc đăng nhập bằng"
-        android:textColor="#000000"
-        app:layout_constraintTop_toBottomOf="@id/line1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/line1" />
 
     <!-- Social Media Icons -->
     <LinearLayout
@@ -119,60 +119,59 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/socialLoginText"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/socialLoginText">
 
         <ImageView
             android:id="@+id/img_google"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/google"
-            android:scaleType="centerCrop"
             android:background="?android:attr/selectableItemBackground"
-            android:contentDescription="Google" />
+            android:contentDescription="Google"
+            android:scaleType="centerCrop"
+            android:src="@drawable/google" />
 
         <ImageView
             android:id="@+id/img_facebook"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="20dp"
-            android:src="@drawable/facebook"
-            android:scaleType="centerCrop"
             android:background="?android:attr/selectableItemBackground"
-            android:contentDescription="Facebook" />
+            android:contentDescription="Facebook"
+            android:scaleType="centerCrop"
+            android:src="@drawable/facebook" />
 
         <ImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="20dp"
-            android:src="@drawable/apple"
-            android:contentDescription="Apple" />
+            android:contentDescription="Apple"
+            android:src="@drawable/apple" />
     </LinearLayout>
 
     <!-- Register Text -->
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_marginBottom="40dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chưa có tài khoản?  "
-            android:textColor="#000000"
-            />
+            android:text="Chưa có tài khoản?  " />
+
         <TextView
             android:id="@+id/registerText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Đăng ký"
-            android:textColor="#008CFF"
             android:background="?android:attr/selectableItemBackground"
-            />
+            android:text="Đăng ký"
+            android:textColor="#008CFF" />
     </LinearLayout>
 
 

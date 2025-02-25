@@ -11,6 +11,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -118,6 +120,9 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvAvailable;
     private ImageView ivRefreshConnected;
     private ImageView ivRefreshAvailable;
+    Button button_update;
+    Button btn_start;
+    Button btn_stop;
 
     //abc
     private BluetoothAdapter bluetoothAdapter;
@@ -169,6 +174,21 @@ public class HomeFragment extends Fragment {
         //abc
         initView(view);
         printHashKey(getContext());
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            button_update.setBackgroundColor(Color.BLACK);
+            button_update.setTextColor(Color.WHITE);
+            btn_start.setBackgroundColor(Color.BLACK);
+            btn_start.setTextColor(Color.WHITE);
+            btn_stop.setBackgroundColor(Color.BLACK);
+            btn_stop.setTextColor(Color.WHITE);
+        } else {
+            button_update.setBackgroundColor(Color.WHITE);
+            button_update.setTextColor(Color.BLACK);
+            btn_start.setBackgroundColor(Color.WHITE);
+            btn_start.setTextColor(Color.BLACK);
+            btn_stop.setBackgroundColor(Color.WHITE);
+            btn_stop.setTextColor(Color.BLACK);        }
         rvConnected.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAvailable.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -383,9 +403,9 @@ public class HomeFragment extends Fragment {
         ivRefreshConnected = view.findViewById(R.id.iv_refresh_connected);
         ivRefreshAvailable = view.findViewById(R.id.iv_refresh_available);
         tv_attention_value = getView().findViewById(R.id.tv_attention_value);
-        Button button_update = getView().findViewById(R.id.btn_update);
-        Button btn_start = getView().findViewById(R.id.btn_attention_start);
-        Button btn_stop = getView().findViewById(R.id.btn_attention_stop);
+        button_update = getView().findViewById(R.id.btn_update);
+        btn_start = getView().findViewById(R.id.btn_attention_start);
+        btn_stop = getView().findViewById(R.id.btn_attention_stop);
         wave_layout = getView().findViewById(R.id.wave_layout);
         contraint_connect = getView().findViewById(R.id.contraint_connect);
         contraint_connected = getView().findViewById(R.id.contraint_connected);

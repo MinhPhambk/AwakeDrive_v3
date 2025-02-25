@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background">
@@ -10,11 +10,11 @@
         android:id="@+id/logoImageView"
         android:layout_width="350dp"
         android:layout_height="250dp"
-        android:src="@drawable/logo"
         android:contentDescription="Logo"
-        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/logo"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Tiêu đề -->
     <TextView
@@ -22,40 +22,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Quên mật khẩu"
-        android:textColor="#000000"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/logoImageView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/logoImageView" />
 
     <!-- Email/Phone Input -->
     <EditText
         android:id="@+id/emailInput"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:padding="10dp"
         android:layout_marginTop="10dp"
-        android:hint="Email hoặc số điện thoại..."
         android:background="@drawable/edittext_background"
-        app:layout_constraintTop_toBottomOf="@id/titleTextView"
-        app:layout_constraintStart_toStartOf="parent"
+        android:hint="Email hoặc số điện thoại..."
+        android:padding="10dp"
+        android:textColorHint="#F26B6B6B"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
         app:layout_constraintWidth_percent="0.90" />
+
     <Button
         android:id="@+id/forgot_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Gửi xác nhận"
-        android:backgroundTint="#008CFF"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/emailInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"
+        android:backgroundTint="#008CFF"
+        android:text="Gửi xác nhận"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/emailInput"
         app:layout_constraintWidth_percent="0.35" />
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

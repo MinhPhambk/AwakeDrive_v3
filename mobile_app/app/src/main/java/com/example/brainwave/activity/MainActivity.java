@@ -11,8 +11,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.brainwave.FragmentAbout;
+import com.example.brainwave.FragmentHome;
 import com.example.brainwave.R;
 import com.example.brainwave.adapter.ViewPagerAdapter;
+import com.example.brainwave.fragment.AccountFragment;
+import com.example.brainwave.fragment.DeviceFragment;
+import com.example.brainwave.fragment.HomeFragment;
+import com.example.brainwave.fragment.PlayerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -28,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
         navigationView=findViewById(R.id.nav_view);
         ViewPagerAdapter pagerAdapter=new ViewPagerAdapter(this);
         viewPager2.setAdapter(pagerAdapter);
+        pagerAdapter.addFragment(new HomeFragment());
+        pagerAdapter.addFragment(new DeviceFragment());
+        pagerAdapter.addFragment(new PlayerFragment());
+        pagerAdapter.addFragment(new AccountFragment());
+        viewPager2.setOffscreenPageLimit(pagerAdapter.getItemCount());
         initControl();
     }
 

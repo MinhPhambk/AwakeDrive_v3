@@ -2,17 +2,21 @@ package com.example.brainwave.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.brainwave.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,6 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean isPasswordVisible = false;
     private Button btn_register;
     private FirebaseAuth firebaseAuth;
+    private ScrollView background;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,12 @@ public class RegisterActivity extends AppCompatActivity {
         ontouch_confirm_pass();
         onlick_already_have_account();
         btn_register.setOnClickListener(v -> signUp());
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            background.setBackgroundColor(Color.BLACK);
+        } else {
+            background.setBackground(ContextCompat.getDrawable(this,R.drawable.gradient_background));
+        }
     }
 
     private void signUp() {
@@ -155,5 +166,6 @@ public class RegisterActivity extends AppCompatActivity {
         edt_last_name = findViewById(R.id.edt_last_name);
         edt_email = findViewById(R.id.edt_email);
         btn_register = findViewById(R.id.btn_register);
+        background = findViewById(R.id.background);
     }
 }

@@ -2,6 +2,10 @@ package com.example.brainwave.adapter;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +28,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
     private OnUnpairClickListener onUnpairClickListener;
     private OnConnectClickListener onConnectClickListener;
     private OnDisconnectClickListener onDisconnectClickListener;
-
     public interface OnConnectClickListener {
         void onConnectClick(Device device, int position);
     }
@@ -96,6 +99,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
                 onUnpairClickListener.onUnpairClick(device, position);
             }
         });
+        int nightModeFlags = holder.itemView.getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            holder.icon_headset.setColorFilter(Color.WHITE); // Chế độ tối
+        } else {
+            holder.icon_headset.setColorFilter(Color.BLACK); // Chế độ sáng
+        }
     }
 
 
@@ -106,13 +115,14 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceView
 
     static class DeviceViewHolder extends RecyclerView.ViewHolder {
         TextView deviceName, deviceStatus;
-        ImageView unpairButton;
+        ImageView unpairButton,icon_headset;
 
         DeviceViewHolder(@NonNull View itemView) {
             super(itemView);
             deviceName = itemView.findViewById(R.id.tv_device_name);
             deviceStatus = itemView.findViewById(R.id.tv_device_status);
             unpairButton = itemView.findViewById(R.id.iv_unpair);
+            icon_headset = itemView.findViewById(R.id.icon_headset);
         }
     }
 }
