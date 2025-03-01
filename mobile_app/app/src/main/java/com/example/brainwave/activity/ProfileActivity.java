@@ -41,8 +41,8 @@ public class ProfileActivity extends AppCompatActivity {
         }
         if (user != null) {
             Glide.with(getApplicationContext()).load(user.getPhotoUrl()).circleCrop().into(avatar);
-            tv_name.setText("Tên đầy đủ: " + user.getDisplayName());
-            tv_email.setText("Địa chỉ Email: " + user.getEmail());
+            tv_name.setText(user.getDisplayName());
+            tv_email.setText(user.getEmail());
         }
 
         edit_pass.setOnClickListener(v -> checkProviderAndChangePassword());

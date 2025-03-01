@@ -80,9 +80,12 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -92,7 +95,7 @@ public class HomeFragment extends Fragment {
 
     public static Intent intent;
 
-    private TextView tv_attention_value, txt_name_user, txt_name_user_visible;
+    private TextView tv_attention_value, txt_name_user, txt_name_user_visible, tv_time;
     private int badPacketCount = 0;
     private int numbeOfSamples = 0;
     private static final int MAX_SAMPLES = 5;
@@ -145,6 +148,13 @@ public class HomeFragment extends Fragment {
     private int lastMiddleGamma = -1;
     private int poorSignal = -1;
     private String uid = null;
+    private boolean isRecording = true;
+    private long startTime = 0;
+    private long endTime = 0;
+    private String sessionId;
+    private int seconds = 0;
+    private boolean running = false;
+    private Handler handler = new Handler(Looper.getMainLooper());
 
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -188,7 +198,8 @@ public class HomeFragment extends Fragment {
             btn_start.setBackgroundColor(Color.WHITE);
             btn_start.setTextColor(Color.BLACK);
             btn_stop.setBackgroundColor(Color.WHITE);
-            btn_stop.setTextColor(Color.BLACK);        }
+            btn_stop.setTextColor(Color.BLACK);
+        }
         rvConnected.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAvailable.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -292,37 +303,74 @@ public class HomeFragment extends Fragment {
             Log.e("Firebase", "Người dùng chưa đăng nhập!");
         }
 
-        firebaseHandler = new Handler();
-        firebaseRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
-                        lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1) {
-                    saveDataToFirebase(uid, lastDelta, lastTheta, lastLowalpha, lastHighAlpha, lastHighBeta, lastLowBeta, lastLowGamma, lastMiddleGamma);
-                }
-                firebaseHandler.postDelayed(this,10000);
-            }
-        };
-        firebaseHandler.postDelayed(firebaseRunnable, 10000);
     }
 
-    private void saveDataToFirebase(String uid, int delta, int theta, int lowalpha, int highAlpha, int lowBeta, int highBeta, int lowGamma, int middleGamma) {
-        if (uid == null) return;
-        String timestamp = String.valueOf(System.currentTimeMillis());
+    private Runnable updateTime = new Runnable() {
+        @Override
+        public void run() {
+            if (running) {
+                seconds++;
+                int hours = seconds / 3600;
+                int minutes = (seconds % 3600) / 60;
+                int secs = seconds % 60;
+                tv_time.setText(String.format("%02d:%02d:%02d", hours, minutes, secs));
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
+
+    private void saveDataToFirebase(String uid, String sessionId) {
+        long timestamp = System.currentTimeMillis();
+
         Map<String, Object> brainData = new HashMap<>();
         brainData.put("timestamp", timestamp);
-        brainData.put("delta", delta);
-        brainData.put("theta", theta);
-        brainData.put("lowalpha", lowalpha);
-        brainData.put("highAlpha", highAlpha);
-        brainData.put("lowBeta", lowBeta);
-        brainData.put("highBeta", highBeta);
-        brainData.put("lowGamma", lowGamma);
-        brainData.put("middleGamma", middleGamma);
-        // Lưu vào Firebase
-        databaseRef.child(timestamp).setValue(brainData)
-                .addOnSuccessListener(aVoid -> Log.d("Firebase", "Dữ liệu đã được lưu"))
+        brainData.put("delta", lastDelta);
+        brainData.put("theta", lastTheta);
+        brainData.put("lowAlpha", lastLowalpha);
+        brainData.put("highAlpha", lastHighAlpha);
+        brainData.put("lowBeta", lastLowBeta);
+        brainData.put("highBeta", lastHighBeta);
+        brainData.put("lowGamma", lastLowGamma);
+        brainData.put("middleGamma", lastMiddleGamma);
+
+        databaseRef.child("sessions").child(sessionId).child("data").child(String.valueOf(timestamp))
+                .setValue(brainData)
+                .addOnSuccessListener(aVoid -> Log.d("Firebase", "Dữ liệu đã lưu"))
                 .addOnFailureListener(e -> Log.e("Firebase", "Lỗi lưu dữ liệu", e));
+    }
+
+    public void stopRecording() {
+        if (!isRecording) return;
+
+        isRecording = false;
+        endTime = System.currentTimeMillis();
+
+        if (firebaseHandler != null) {
+            firebaseHandler.removeCallbacks(firebaseRunnable);
+
+            // Kiểm tra xem data có tồn tại không trước khi lưu session
+            databaseRef.child("sessions").child(sessionId).child("data")
+                    .get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult().exists()) {
+                            saveSessionTime(sessionId, startTime, endTime);
+                        } else {
+                            Log.d("Firebase", "Không có data");
+                        }
+                    });
+        }
+    }
+
+    private void saveSessionTime(String sessionId, long start, long end) {
+        if (start == 0 || end == 0) return;
+
+        Map<String, Object> sessionData = new HashMap<>();
+        sessionData.put("startTime", start);
+        sessionData.put("endTime", end);
+
+        databaseRef.child("sessions").child(sessionId).child("info")
+                .setValue(sessionData)
+                .addOnSuccessListener(aVoid -> Log.d("Firebase", "Lưu thông tin phiên đo"))
+                .addOnFailureListener(e -> Log.e("Firebase", "Lỗi lưu phiên đo", e));
     }
 
     public static void printHashKey(Context pContext) {
@@ -412,6 +460,7 @@ public class HomeFragment extends Fragment {
         cardView3 = getView().findViewById(R.id.cardView3);
         txt_name_user = view.findViewById(R.id.txt_name_user);
         txt_name_user_visible = view.findViewById(R.id.txt_name_user_visible);
+        tv_time = view.findViewById(R.id.tv_time);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user.getDisplayName() != null) {
@@ -430,6 +479,9 @@ public class HomeFragment extends Fragment {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                running = true;
+                seconds = 0;
+                handler.post(updateTime);
                 if (isProcessing) {
                     return;
                 }
@@ -462,7 +514,25 @@ public class HomeFragment extends Fragment {
 
                 tgStreamReader.connect();
 //				tgStreamReader.connectAndStart();
+//                startRecording();
+                isRecording = true;
+                startTime = System.currentTimeMillis();
+                sessionId = String.valueOf(startTime);
+                endTime = 0;
+                firebaseHandler = new Handler();
+                firebaseRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isRecording) return;
 
+                        if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
+                                lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1) {
+                            saveDataToFirebase(uid, sessionId);
+                        }
+                        firebaseHandler.postDelayed(this, 1000);
+                    }
+                };
+                firebaseHandler.post(firebaseRunnable);
             }
 
         });
@@ -470,8 +540,10 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onClick(View arg0) {
+                running = false;
+                handler.removeCallbacks(updateTime);
                 stop();
-                firebaseHandler.removeCallbacks(firebaseRunnable);
+                stopRecording();
             }
 
         });
@@ -486,8 +558,6 @@ public class HomeFragment extends Fragment {
                 isLoading = true;
                 AsyncTaskRunner runner = new AsyncTaskLoadModel();
                 runner.execute();
-                ProgressBar bar = (ProgressBar) getView().findViewById(R.id.progressBar);
-                bar.setVisibility(View.VISIBLE);
             }
         });
     }

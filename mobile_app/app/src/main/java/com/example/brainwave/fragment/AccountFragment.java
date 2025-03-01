@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.example.brainwave.R;
 import com.example.brainwave.activity.HistoryActivity;
 import com.example.brainwave.activity.LoginActivity;
+import com.example.brainwave.activity.PolicyActivity;
 import com.example.brainwave.activity.ProfileActivity;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +41,7 @@ public class AccountFragment extends Fragment {
     private ImageView avatar;
     private TextView btn_logout, tv_username, tv_email;
     private FirebaseAuth firebaseAuth;
-    private LinearLayout line_info, line_support, line_history;
+    private LinearLayout line_info, line_support, line_history,line_policy;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -54,7 +55,6 @@ public class AccountFragment extends Fragment {
         }
         tv_username.setText(user.getDisplayName());
         tv_email.setText(user.getEmail());
-        btn_logout = view.findViewById(R.id.btn_logout);
         btn_logout.setOnClickListener(v -> {
             firebaseAuth.signOut();
             LoginManager.getInstance().logOut();
@@ -75,6 +75,12 @@ public class AccountFragment extends Fragment {
             Intent intent = new Intent(getContext(), HistoryActivity.class);
             startActivity(intent);
         });
+        line_policy.setOnClickListener(v ->{
+            Intent intent = new Intent(getContext(), PolicyActivity.class);
+            intent.putExtra("url", "https://policies.google.com/");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        });
     }
 
     private void initView(View view) {
@@ -84,6 +90,8 @@ public class AccountFragment extends Fragment {
         line_info = view.findViewById(R.id.line_info);
         line_support = view.findViewById(R.id.line_support);
         line_history = view.findViewById(R.id.line_history);
+        line_policy = view.findViewById(R.id.line_policy);
+        btn_logout = view.findViewById(R.id.btn_logout);
         firebaseAuth = FirebaseAuth.getInstance();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.brainwave.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -10,8 +11,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.brainwave.R;
+import com.example.brainwave.adapter.SessionAdapter;
+import com.example.brainwave.model.Session;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -21,76 +26,115 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class HistoryActivity extends AppCompatActivity {
-    private TextView txt_delta;
-    private FirebaseAuth auth;
-    private FirebaseDatabase databaseRef;
+    private RecyclerView recyclerView;
+    private SessionAdapter sessionAdapter;
+    private List<Session> sessionList;
+    private DatabaseReference databaseRef;
+    private FirebaseAuth firebaseAuth;
+    private TextView tv_usage_time, tv_avenger_usage, tv_message;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        txt_delta = findViewById(R.id.txt_delta);
-        auth = FirebaseAuth.getInstance();
-        databaseRef = FirebaseDatabase.getInstance();
-        getAllBrainData();
+        initView();
+
+        sessionList = new ArrayList<>();
+        firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            databaseRef = FirebaseDatabase.getInstance()
+                    .getReference("BrainData")
+                    .child(user.getUid())
+                    .child("sessions");
+        }
+        tv_message.setText(user.getDisplayName()+" quả là một chú ong chăm chỉ\nCần ngủ đủ giấc để đảm bảo khỏe mạnh");
+        loadSessionHistory();
+        sessionAdapter = new SessionAdapter(this, sessionList, this::openSessionDetail);
+        recyclerView.setAdapter(sessionAdapter);
+
+        timeuse();
     }
 
-    private void getAllBrainData() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            String uid = user.getUid();
-            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("BrainData").child(uid);
+    private void initView() {
+        recyclerView = findViewById(R.id.recyclerView);
+        tv_usage_time = findViewById(R.id.tv_usage_time);
+        tv_avenger_usage = findViewById(R.id.tv_avenger_usage);
+        tv_message = findViewById(R.id.tv_message);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
 
-            // Lắng nghe sự thay đổi theo thời gian thực
-            userRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        StringBuilder dataBuilder = new StringBuilder();
+    private void timeuse() {
+        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long totalTime = 0;
+                int sessionCount = 0;
 
-                        for (DataSnapshot data : snapshot.getChildren()) {
-                            long timestamp = Long.parseLong(data.child("timestamp").getValue(String.class));
-                            String format = formatTimestamp(timestamp);
-                            int delta = data.child("delta").getValue(Integer.class);
-                            int highAlpha = data.child("highAlpha").getValue(Integer.class);
-                            int highBeta = data.child("highBeta").getValue(Integer.class);
-                            int lowBeta = data.child("lowBeta").getValue(Integer.class);
-                            int lowGamma = data.child("lowGamma").getValue(Integer.class);
-                            int lowAlpha = data.child("lowalpha").getValue(Integer.class);
-                            int middleGamma = data.child("middleGamma").getValue(Integer.class);
-                            int theta = data.child("theta").getValue(Integer.class);
+                for (DataSnapshot session : snapshot.getChildren()) {
+                    long startTime = session.child("info/startTime").getValue(Long.class);
+                    long endTime = session.child("info/endTime").getValue(Long.class);
 
-                            // Thêm dữ liệu vào StringBuilder để hiển thị toàn bộ dữ liệu
-                            dataBuilder.append("📅 Timestamp: ").append(format).append("\n")
-                                    .append("🔹 Delta: ").append(delta).append("\n")
-                                    .append("🔹 High Alpha: ").append(highAlpha).append("\n")
-                                    .append("🔹 High Beta: ").append(highBeta).append("\n")
-                                    .append("🔹 Low Beta: ").append(lowBeta).append("\n")
-                                    .append("🔹 Low Gamma: ").append(lowGamma).append("\n")
-                                    .append("🔹 Low Alpha: ").append(lowAlpha).append("\n")
-                                    .append("🔹 Middle Gamma: ").append(middleGamma).append("\n")
-                                    .append("🔹 Theta: ").append(theta).append("\n")
-                                    .append("━━━━━━━━━━━━━━━━━━━━━━\n");
-                        }
-
-                        // Hiển thị tất cả dữ liệu lên TextView
-                        txt_delta.setText(dataBuilder.toString());
-                    } else {
-                        txt_delta.setText("Không có dữ liệu!");
+                    if (endTime > startTime) {
+                        long duration = endTime - startTime;
+                        totalTime += duration;
+                        sessionCount++;
                     }
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e("Firebase", "Lỗi khi lấy dữ liệu", error.toException());
+                long avgTime = (sessionCount > 0) ? totalTime / sessionCount : 0;
+                double totalHours = totalTime / 3600000.0;
+                double avgHours = (sessionCount > 0) ? totalHours / sessionCount : 0;
+                tv_usage_time.setText(String.format("%.3f giờ", totalHours));
+                tv_avenger_usage.setText(String.format("%.3f giờ", avgHours));
+                Log.d("FirebaseData", totalHours + avgHours + "");
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("FirebaseError", "Lỗi khi truy xuất dữ liệu", error.toException());
+            }
+        });
+    }
+
+    private void loadSessionHistory() {
+        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                sessionList.clear();
+                for (DataSnapshot sessionSnapshot : snapshot.getChildren()) {
+                    DataSnapshot infoSnapshot = sessionSnapshot.child("info");
+                    Long startTime = infoSnapshot.child("startTime").getValue(Long.class);
+                    Long endTime = infoSnapshot.child("endTime").getValue(Long.class);
+
+                    if (startTime != null && endTime != null) {
+                        sessionList.add(new Session(sessionSnapshot.getKey(), startTime, endTime));
+                    } else {
+                        Log.e("Firebase", "Thiếu dữ liệu startTime hoặc endTime cho sessionId: " + sessionSnapshot.getKey());
+                    }
                 }
-            });
-        } else {
-            txt_delta.setText("Người dùng chưa đăng nhập!");
-        }
+
+                sessionAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Lỗi tải dữ liệu", error.toException());
+            }
+        });
+    }
+
+    private void openSessionDetail(Session session) {
+        Intent intent = new Intent(this, SessionDetailActivity.class);
+        intent.putExtra("sessionId", session.getSessionId());
+        startActivity(intent);
     }
 
     private String formatTimestamp(long timestampMillis) {

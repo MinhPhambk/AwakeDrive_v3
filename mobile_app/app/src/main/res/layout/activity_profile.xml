@@ -2,97 +2,122 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.ProfileActivity">
 
-    <LinearLayout
+    <!-- Header Section -->
+    <androidx.cardview.widget.CardView
         android:id="@+id/header_section"
         android:layout_width="0dp"
         android:layout_height="250dp"
-        android:background="#66CCFF"
-        android:gravity="center"
-        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/avatar"
-            android:layout_width="250dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/avatar" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/header_section">
-
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
-            android:text="Tên đầy đủ: Jenky Tran"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tv_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
-            android:text="Địa chỉ Email: jenky.tran@gmail.com"
-            android:textSize="18sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
-            android:text="Mật khẩu: "
-            android:textSize="18sp" />
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:weightSum="10"
-            android:layout_height="50dp">
-            <EditText
-                android:id="@+id/pass"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="9"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:focusable="false"
-                android:clickable="false"
-                android:background="@drawable/edittext_background"
-                android:inputType="textPassword"
-                android:padding="10dp"
-                android:text="abcasdasd"
-                app:layout_constraintWidth_percent="0.90" />
-            <ImageView
-                android:id="@+id/edit_pass"
-                android:src="@drawable/edit"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_gravity="center"
-                android:layout_height="30dp"/>
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:background="#63CBFE"
+            android:gravity="center"
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/avatar"
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:layout_margin="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/avatar" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/header_section"
+            android:orientation="vertical"
+            android:padding="15dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:text="Tên đầy đủ:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_weight="9"
+                android:background="@drawable/edittext_background"
+                android:clickable="false"
+                android:focusable="false"
+                android:padding="10dp"
+                android:text="Jenky"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="5dp"
+                android:text="Email: "
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_email"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_weight="9"
+                android:background="@drawable/edittext_background"
+                android:clickable="false"
+                android:focusable="false"
+                android:padding="10dp"
+                android:text="jenky.tran@gmail.com"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="5dp"
+                android:text="Mật khẩu:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/pass"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="9"
+                    android:background="@drawable/edittext_background"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:inputType="textPassword"
+                    android:padding="10dp"
+                    android:text="********"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/edit_pass"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="10dp"
+                    android:padding="8dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/edit" />
+            </LinearLayout>
+        </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

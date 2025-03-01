@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_marginBottom="10dp"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/img_session"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/bar_chart"
+        android:scaleType="fitXY"
+        android:layout_gravity="center_vertical"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_session_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ngọc’s AwakeDrive"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/txtSession"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="07:00:23 12/01/2025 - 09:02:34 12/01/2025"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"/>
+    </LinearLayout>
+</LinearLayout>
