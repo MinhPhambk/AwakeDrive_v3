@@ -5,7 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.ProfileActivity">
-
+    <Toolbar
+        android:id="@+id/tool_bar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:title="Thông tin cá nhân"
+        android:background="#63CBFE"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
     <!-- Header Section -->
     <androidx.cardview.widget.CardView
         android:id="@+id/header_section"
@@ -13,7 +21,7 @@
         android:layout_height="250dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/tool_bar">
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -219,40 +219,40 @@ public class HomeFragment extends Fragment {
         ivRefreshConnected.setOnClickListener(v -> refreshConnectedDevices(ivRefreshConnected));
         ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
         availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
-        connectedAdapter.setOnItemClickListener((device, position) -> {
-            if (isProcessing) {
-                return;
-            }
-            showToast("Connecting...", Toast.LENGTH_SHORT);
-            numbeOfSamples = 0;
-            isProcessing = true;
-
-            badPacketCount = 0;
-
-            // load model
-            try {
-                if (TrainModel.model == null) {
-//                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
-                    File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
-                    System.out.println("Model file path:");
-                    System.out.println(pathFile);
-                    TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-            if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
-
-                // Prepare for connecting
-                tgStreamReader.stop();
-                tgStreamReader.close();
-            }
-
-            tgStreamReader.connect();
-//				tgStreamReader.connectAndStart();
-        });
+//        connectedAdapter.setOnItemClickListener((device, position) -> {
+//            if (isProcessing) {
+//                return;
+//            }
+//            showToast("Connecting...", Toast.LENGTH_SHORT);
+//            numbeOfSamples = 0;
+//            isProcessing = true;
+//
+//            badPacketCount = 0;
+//
+//            // load model
+//            try {
+//                if (TrainModel.model == null) {
+////                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
+//                    File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
+//                    System.out.println("Model file path:");
+//                    System.out.println(pathFile);
+//                    TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//            if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
+//
+//                // Prepare for connecting
+//                tgStreamReader.stop();
+//                tgStreamReader.close();
+//            }
+//
+//            tgStreamReader.connect();
+////				tgStreamReader.connectAndStart();
+//        });
         connectedAdapter.setOnUnpairClickListener((device, position) -> unpairDevice(position));
 
         checkPermissionsAndStart();

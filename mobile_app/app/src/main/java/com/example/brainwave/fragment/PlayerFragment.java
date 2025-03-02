@@ -47,17 +47,15 @@ public class PlayerFragment extends Fragment {
                         startY = event.getY();
                         break;
                     case MotionEvent.ACTION_UP:
-                        float endY = event.getY();
-                        if (startY - endY > 200) {
-                            // Hiển thị BottomSheetDialogFragment
-                            PlayerBottomSheetDialog bottomSheetDialog = new PlayerBottomSheetDialog();
-                            bottomSheetDialog.show(getChildFragmentManager(), bottomSheetDialog.getTag());
+                        if (startY - event.getY() > 200) {
+                            new PlayerBottomSheetDialog().show(getChildFragmentManager(), "PlayerBottomSheet");
                         }
                         break;
                 }
                 return true;
             }
         });
+
         mediaPlayer = new MediaPlayer();
 
         initAnimation();

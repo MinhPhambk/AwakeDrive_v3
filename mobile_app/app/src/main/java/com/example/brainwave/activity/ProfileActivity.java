@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,17 +23,21 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 
+import java.util.Objects;
+
 public class ProfileActivity extends AppCompatActivity {
     private ImageView avatar, edit_pass;
     private EditText pass;
     private FirebaseAuth firebaseAuth;
     private TextView tv_name, tv_email;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         initView();
+        ActionToolBar();
         FirebaseUser user = firebaseAuth.getCurrentUser();
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
@@ -47,7 +52,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         edit_pass.setOnClickListener(v -> checkProviderAndChangePassword());
     }
-
+    private void ActionToolBar() {
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(v -> finish());
+    }
     private void checkProviderAndChangePassword() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user == null) {
@@ -106,7 +116,7 @@ public class ProfileActivity extends AppCompatActivity {
         EditText edtNewPassword = view.findViewById(R.id.edt_new_password);
         EditText edtConfirmPassword = view.findViewById(R.id.edt_confirm_password);
         Button btnConfirm = view.findViewById(R.id.btn_confirm_change);
-
+        toolbar = view.findViewById(R.id.tool_bar);
         AlertDialog dialog = builder.create();
         dialog.show();
 

@@ -68,7 +68,7 @@ public class AccountFragment extends Fragment {
         });
         line_support.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("mailto:tdungvippro112@gmail.com"));
+            intent.setData(Uri.parse("mailto:neuralofthings@gmail.com?subject=Góp ý về sản phẩm Awake Drive"));
             startActivity(Intent.createChooser(intent, "Chọn ứng dụng Email"));
         });
         line_history.setOnClickListener(v -> {
