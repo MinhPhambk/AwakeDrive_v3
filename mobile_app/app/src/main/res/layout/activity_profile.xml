@@ -5,20 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.ProfileActivity">
-    <Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/tool_bar"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:title="Thông tin cá nhân"
-        android:background="#63CBFE"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <!-- Header Section -->
-    <androidx.cardview.widget.CardView
+    <LinearLayout
         android:id="@+id/header_section"
-        android:layout_width="0dp"
-        android:layout_height="250dp"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tool_bar">
@@ -26,19 +25,18 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#63CBFE"
             android:gravity="center"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/avatar"
-                android:layout_width="220dp"
-                android:layout_height="220dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_margin="10dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/avatar" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

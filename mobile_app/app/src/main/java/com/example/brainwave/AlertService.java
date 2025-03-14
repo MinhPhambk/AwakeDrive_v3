@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -32,7 +33,7 @@ public class AlertService extends IntentService {
 
     public void playHorn(){
         stopPlayer();
-        player = MediaPlayer.create( this, R.raw.test_delta_waves_4hz_3min_isochronic);
+        player = MediaPlayer.create(this, Uri.parse("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp"));
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {

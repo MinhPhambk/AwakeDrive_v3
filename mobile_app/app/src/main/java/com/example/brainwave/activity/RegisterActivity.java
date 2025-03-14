@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,7 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btn_register;
     private FirebaseAuth firebaseAuth;
     private ScrollView background;
-
+    private SoundManager soundManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +44,10 @@ public class RegisterActivity extends AppCompatActivity {
         ontouch_pass();
         ontouch_confirm_pass();
         onlick_already_have_account();
-        btn_register.setOnClickListener(v -> signUp());
+        btn_register.setOnClickListener(v ->{
+            soundManager.playSound();
+            signUp();
+        });
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             background.setBackgroundColor(Color.BLACK);
@@ -104,6 +108,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void onlick_already_have_account() {
         tv_already_have_account.setOnClickListener(v -> {
+            soundManager.playSound();
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(intent);
             finish();
@@ -167,5 +172,6 @@ public class RegisterActivity extends AppCompatActivity {
         edt_email = findViewById(R.id.edt_email);
         btn_register = findViewById(R.id.btn_register);
         background = findViewById(R.id.background);
+        soundManager = SoundManager.getInstance(this);
     }
 }

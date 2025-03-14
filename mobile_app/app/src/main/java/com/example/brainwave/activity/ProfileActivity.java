@@ -10,12 +10,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
+import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.R;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -31,6 +32,7 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private TextView tv_name, tv_email;
     private Toolbar toolbar;
+    private SoundManager soundManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +52,22 @@ public class ProfileActivity extends AppCompatActivity {
             tv_email.setText(user.getEmail());
         }
 
-        edit_pass.setOnClickListener(v -> checkProviderAndChangePassword());
+        edit_pass.setOnClickListener(v -> {
+            soundManager.playSound();
+            checkProviderAndChangePassword();
+        });
     }
+
     private void ActionToolBar() {
         setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Thông tin cá nhân");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(v -> {
+            soundManager.playSound();
+            finish();
+        });
     }
+
     private void checkProviderAndChangePassword() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user == null) {
@@ -116,11 +126,11 @@ public class ProfileActivity extends AppCompatActivity {
         EditText edtNewPassword = view.findViewById(R.id.edt_new_password);
         EditText edtConfirmPassword = view.findViewById(R.id.edt_confirm_password);
         Button btnConfirm = view.findViewById(R.id.btn_confirm_change);
-        toolbar = view.findViewById(R.id.tool_bar);
         AlertDialog dialog = builder.create();
         dialog.show();
 
         btnConfirm.setOnClickListener(v -> {
+            soundManager.playSound();
             String oldPassword = edtOldPassword.getText().toString().trim();
             String newPassword = edtNewPassword.getText().toString().trim();
             String confirmPassword = edtConfirmPassword.getText().toString().trim();
@@ -141,5 +151,7 @@ public class ProfileActivity extends AppCompatActivity {
         tv_email = findViewById(R.id.tv_email);
         edit_pass = findViewById(R.id.edit_pass);
         pass = findViewById(R.id.pass);
+        toolbar = findViewById(R.id.tool_bar);
+        soundManager = SoundManager.getInstance(this);
     }
 }

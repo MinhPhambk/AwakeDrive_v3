@@ -19,10 +19,12 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
+
     public void addFragment(Fragment fragment) {
         fragmentList.add(fragment);
         notifyDataSetChanged();
     }
+
     @NonNull
     @Override
     public Fragment createFragment(int position) {
@@ -48,8 +50,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public boolean containsItem(long itemId) {
-        for (Fragment fragment:fragmentList){
-            if(fragment.hashCode() == itemId) return true;
+        for (Fragment fragment : fragmentList) {
+            if (fragment.hashCode() == itemId) return true;
         }
         return false;
     }

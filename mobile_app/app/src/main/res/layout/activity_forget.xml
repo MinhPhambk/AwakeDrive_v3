@@ -36,6 +36,7 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/edittext_background"
         android:hint="Email hoặc số điện thoại..."
+        android:textColor="@color/black"
         android:padding="10dp"
         android:textColorHint="#F26B6B6B"
         app:layout_constraintEnd_toEndOf="parent"

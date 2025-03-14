@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.R;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ public class PlayerFragment extends Fragment {
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
     private ObjectAnimator diskAnimator;
+    private SoundManager soundManager;
 
     @Nullable
     @Override
@@ -39,6 +41,7 @@ public class PlayerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         img_pause_play = view.findViewById(R.id.img_pause_play);
         img_player = view.findViewById(R.id.img_player);
+        soundManager = SoundManager.getInstance(getContext());
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -60,6 +63,7 @@ public class PlayerFragment extends Fragment {
 
         initAnimation();
         img_pause_play.setOnClickListener(v -> {
+            soundManager.playSound();
             if (isPlaying) {
                 pauseMusic();
             } else {

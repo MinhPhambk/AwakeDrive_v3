@@ -107,8 +107,10 @@
 
         <!-- Cài đặt -->
         <LinearLayout
+            android:id="@+id/line_setting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
             android:orientation="horizontal"
@@ -198,22 +200,13 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/btn_switch_account"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chuyển tài khoản"
-            android:background="?android:attr/selectableItemBackground"
-            android:textColor="#66CCFF"
-            android:textSize="16sp" />
-
-        <TextView
             android:id="@+id/btn_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginBottom="5dp"
             android:background="?android:attr/selectableItemBackground"
             android:text="Đăng xuất"
             android:textColor="#FF0000"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

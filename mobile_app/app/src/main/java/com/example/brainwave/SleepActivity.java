@@ -2,6 +2,7 @@ package com.example.brainwave;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -36,7 +37,7 @@ public class SleepActivity extends AppCompatActivity {
             public void onClick(View v) {
                 count_playbacks = 0;
                 if(player == null) {
-                    player = MediaPlayer.create(SleepActivity.this, R.raw.test_delta_waves_4hz_3min_isochronic);
+                    player = MediaPlayer.create(SleepActivity.this, Uri.parse("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp"));
                     player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
                         public void onCompletion(MediaPlayer mp) {

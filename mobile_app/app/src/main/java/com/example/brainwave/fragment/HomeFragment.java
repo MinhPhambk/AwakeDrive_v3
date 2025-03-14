@@ -1,5 +1,7 @@
 package com.example.brainwave.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
@@ -40,6 +42,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,17 +50,22 @@ import com.bumptech.glide.Glide;
 import com.example.brainwave.AlertService;
 import com.example.brainwave.AttentionActivity;
 import com.example.brainwave.DrawWaveView;
+import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.LocalDataSet;
 import com.example.brainwave.R;
 import com.example.brainwave.TrainModel;
+import com.example.brainwave.activity.DetailActivity;
 import com.example.brainwave.activity.LoginActivity;
 import com.example.brainwave.activity.SplashActivity;
 import com.example.brainwave.adapter.DeviceAdapter;
 import com.example.brainwave.model.Device;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.neurosky.connection.ConnectionStates;
 import com.neurosky.connection.DataType.MindDataType;
 import com.neurosky.connection.EEGPower;
@@ -125,13 +133,13 @@ public class HomeFragment extends Fragment {
     private ImageView ivRefreshAvailable;
     Button button_update;
     Button btn_start;
-    Button btn_stop;
+    Button btn_stop, bt_detail;
 
-    //abc
     private BluetoothAdapter bluetoothAdapter;
     private DeviceAdapter connectedAdapter, availableAdapter;
     private final List<Device> connectedDevices = new ArrayList<>();
     private final List<Device> availableDevices = new ArrayList<>();
+    private static final int PERMISSION_REQUEST_CODE = 1001;
 
 
     private DatabaseReference databaseRef;
@@ -153,15 +161,25 @@ public class HomeFragment extends Fragment {
     private long endTime = 0;
     private String sessionId;
     private int seconds = 0;
+    private SoundManager soundManager;
     private boolean running = false;
     private Handler handler = new Handler(Looper.getMainLooper());
-
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
                 if (device != null && device.getName() != null && !isDeviceInList(device.getName())) {
                     availableDevices.add(new Device(device.getName(), device.getAddress(), "Có sẵn"));
                     availableAdapter.notifyDataSetChanged();
@@ -173,7 +191,6 @@ public class HomeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        checkAndRequestPermissions();
         return inflater.inflate(R.layout.awake_view, container, false);
 
     }
@@ -181,7 +198,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //abc
         initView(view);
         printHashKey(getContext());
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -256,8 +272,6 @@ public class HomeFragment extends Fragment {
         connectedAdapter.setOnUnpairClickListener((device, position) -> unpairDevice(position));
 
         checkPermissionsAndStart();
-        //abc
-        checkBluetoothPermission();
 
         intent = new Intent(getContext(), AlertService.class);
 
@@ -389,63 +403,9 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void checkBluetoothPermission() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 99);
-        }
-    }
-
-    private void checkAndRequestPermissions() {
-        List<String> permissionsNeeded = new ArrayList<>();
-
-        // Kiểm tra quyền BLUETOOTH_SCAN và BLUETOOTH_CONNECT trên Android 12+ (API >= 31)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN)
-                    != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.BLUETOOTH_SCAN);
-            }
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
-                    != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.BLUETOOTH_CONNECT);
-            }
-        }
-
-        // Kiểm tra quyền ACCESS_FINE_LOCATION
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-
-        // Nếu cần xin bất kỳ quyền nào, yêu cầu tất cả cùng lúc
-        if (!permissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(requireActivity(),
-                    permissionsNeeded.toArray(new String[0]),
-                    1001);
-        } else {
-            // Nếu tất cả các quyền đã được cấp, khởi tạo Bluetooth
-            initializeBluetooth();
-        }
-    }
-
-    private void initializeBluetooth() {
-        Log.d(TAG, "Bluetooth được khởi tạo!");
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                initializeBluetooth();
-            } else {
-                // Permission denied
-                Toast.makeText(requireContext(), "Quyền vị trí bị từ chối. Không thể sử dụng Bluetooth!", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     private void initView(View view) {
+        soundManager = SoundManager.getInstance(getContext());
         rvConnected = view.findViewById(R.id.rv_connected_devices);
         rvAvailable = view.findViewById(R.id.rv_available_devices);
         ivRefreshConnected = view.findViewById(R.id.iv_refresh_connected);
@@ -454,6 +414,7 @@ public class HomeFragment extends Fragment {
         button_update = getView().findViewById(R.id.btn_update);
         btn_start = getView().findViewById(R.id.btn_attention_start);
         btn_stop = getView().findViewById(R.id.btn_attention_stop);
+        bt_detail = getView().findViewById(R.id.bt_detail);
         wave_layout = getView().findViewById(R.id.wave_layout);
         contraint_connect = getView().findViewById(R.id.contraint_connect);
         contraint_connected = getView().findViewById(R.id.contraint_connected);
@@ -479,78 +440,83 @@ public class HomeFragment extends Fragment {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                running = true;
-                seconds = 0;
-                handler.post(updateTime);
-                if (isProcessing) {
-                    return;
-                }
-                showToast("Connecting...", Toast.LENGTH_SHORT);
-                numbeOfSamples = 0;
-                isProcessing = true;
-
-                badPacketCount = 0;
-
-                // load model
-                try {
-                    if (TrainModel.model == null) {
-//                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
-                        File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
-                        System.out.println("Model file path:");
-                        System.out.println(pathFile);
-                        TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
+                soundManager.playSound();
+                if (running == true) {
+                    Toast.makeText(getContext(), "Vui lòng stop trước khi start lại", Toast.LENGTH_SHORT).show();
+                } else {
+                    running = true;
+                    seconds = 0;
+                    handler.post(updateTime);
+                    if (isProcessing) {
+                        return;
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    showToast("Connecting...", Toast.LENGTH_SHORT);
+                    numbeOfSamples = 0;
+                    isProcessing = true;
+
+                    badPacketCount = 0;
+
+                    // load model
+                    try {
+                        if (TrainModel.model == null) {
+//                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
+                            File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
+                            System.out.println("Model file path:");
+                            System.out.println(pathFile);
+                            TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
 
-                if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
+                    if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
 
-                    // Prepare for connecting
-                    tgStreamReader.stop();
-                    tgStreamReader.close();
-                }
+                        // Prepare for connecting
+                        tgStreamReader.stop();
+                        tgStreamReader.close();
+                    }
 
-                tgStreamReader.connect();
+                    tgStreamReader.connect();
 //				tgStreamReader.connectAndStart();
 //                startRecording();
-                isRecording = true;
-                startTime = System.currentTimeMillis();
-                sessionId = String.valueOf(startTime);
-                endTime = 0;
-                firebaseHandler = new Handler();
-                firebaseRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!isRecording) return;
+                    isRecording = true;
+                    startTime = System.currentTimeMillis();
+                    sessionId = String.valueOf(startTime);
+                    endTime = 0;
+                    firebaseHandler = new Handler();
+                    firebaseRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!isRecording) return;
 
-                        if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
-                                lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1) {
-                            saveDataToFirebase(uid, sessionId);
+                            if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
+                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1) {
+                                saveDataToFirebase(uid, sessionId);
+                            }
+                            firebaseHandler.postDelayed(this, 1000);
                         }
-                        firebaseHandler.postDelayed(this, 1000);
-                    }
-                };
-                firebaseHandler.post(firebaseRunnable);
+                    };
+                    firebaseHandler.post(firebaseRunnable);
+                }
             }
-
         });
         btn_stop.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
+                soundManager.playSound();
                 running = false;
                 handler.removeCallbacks(updateTime);
                 stop();
                 stopRecording();
             }
-
         });
 
         button_update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundManager.playSound();
 
                 if (isLoading) {
                     return;
@@ -558,6 +524,15 @@ public class HomeFragment extends Fragment {
                 isLoading = true;
                 AsyncTaskRunner runner = new AsyncTaskLoadModel();
                 runner.execute();
+            }
+        });
+
+        bt_detail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                soundManager.playSound();
+                Intent detail = new Intent(getContext(), DetailActivity.class);
+                startActivity(detail);
             }
         });
     }
@@ -678,19 +653,27 @@ public class HomeFragment extends Fragment {
     }
 
 
-    // abc
     private void checkPermissionsAndStart() {
+        List<String> permissionsNeeded = new ArrayList<>();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                        Manifest.permission.BLUETOOTH_SCAN,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                }, 1001);
-                return;
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.BLUETOOTH_CONNECT);
+            }
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.BLUETOOTH_SCAN);
             }
         }
-        startBluetoothProcesses();
+
+        if (!permissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    permissionsNeeded.toArray(new String[0]),
+                    PERMISSION_REQUEST_CODE);
+        } else {
+            startBluetoothProcesses();
+        }
     }
 
     private void startBluetoothProcesses() {
@@ -703,28 +686,37 @@ public class HomeFragment extends Fragment {
     }
 
     private void fetchPairedDevices() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getContext(), "Không có quyền BLUETOOTH_CONNECT!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         if (pairedDevices != null) {
+            connectedDevices.clear(); // Xóa danh sách cũ trước khi cập nhật
             for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName() != null ? device.getName() : "Thiết bị không tên";
+                String deviceName = (device.getName() != null) ? device.getName() : "Thiết bị không tên";
                 String deviceAddress = device.getAddress();
+                String status = isConnected(device) ? "Đã kết nối" : "Đã lưu";
 
-                // Kiểm tra nếu thiết bị đã kết nối
-                if (isConnected(device)) {
-                    // Thêm thiết bị đã kết nối vào danh sách
-                    connectedDevices.add(new Device(deviceName, deviceAddress, "Đã kết nối"));
-                } else {
-                    // Thêm thiết bị đã lưu vào danh sách
-                    connectedDevices.add(new Device(deviceName, deviceAddress, "Đã lưu"));
-                }
+                connectedDevices.add(new Device(deviceName, deviceAddress, status));
             }
-
-            // Cập nhật adapter (notifyDataSetChanged) sau khi thay đổi dữ liệu
-            connectedAdapter.notifyDataSetChanged();
+            connectedAdapter.notifyDataSetChanged(); // Cập nhật UI
         }
     }
 
+
     private void discoverDevices() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         bluetoothAdapter.cancelDiscovery();
         bluetoothAdapter.startDiscovery();
         getContext().registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
@@ -743,6 +735,16 @@ public class HomeFragment extends Fragment {
         Device device = availableDevices.get(position);
         BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
         try {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             bluetoothDevice.createBond(); // Request pairing
             if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
 
@@ -797,6 +799,16 @@ public class HomeFragment extends Fragment {
         rotateAnimator.start();
 
         // Làm mới danh sách thiết bị khả dụng
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         bluetoothAdapter.cancelDiscovery();
         availableDevices.clear();
         availableAdapter.notifyDataSetChanged();
@@ -812,28 +824,23 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    //abc
     @Override
     public void onResume() {
         super.onResume();
-    }
-
-
-    @Override
-    public void onStop() {
-        stop();
-        super.onStop();
+        FirebaseUser user=firebaseAuth.getCurrentUser();
+        checkAndDeleteInvalidSessions(user.getUid());
     }
 
     @Override
     public void onDestroy() {
-        stop();
         super.onDestroy();
+        stop();
         try {
             getContext().unregisterReceiver(receiver);
         } catch (IllegalArgumentException ignored) {
         }
     }
+
 
     DrawWaveView waveView = null;
 
@@ -1012,6 +1019,12 @@ public class HomeFragment extends Fragment {
                         lastHighBeta = power.highBeta;
                         lastLowGamma = power.lowGamma;
                         lastMiddleGamma = power.middleGamma;
+
+                        sendEEGDataToActivity();
+//                        int alertness = calculateAlertness(lastDelta,lastTheta,lastLowalpha, lastHighAlpha, lastLowBeta, lastHighBeta,lastLowGamma ,lastMiddleGamma);
+////                        TextView level_alert = getView().findViewById(R.id.level_alert);
+////                        Log.d("TAG_alertness", alertness+"");
+////                        level_alert.setText(alertness+"/100");
                     }
                     break;
                 case MindDataType.CODE_POOR_SIGNAL:
@@ -1026,6 +1039,37 @@ public class HomeFragment extends Fragment {
             super.handleMessage(msg);
         }
     };
+
+    // Hàm tính mức độ tỉnh táo
+    public static int calculateAlertness(int delta, int theta, int lowAlpha, int highAlpha,
+                                            int lowBeta, int highBeta, int lowGamma, int middleGamma) {
+        // Tính tổng công suất của các dải
+        int alphaPower = lowAlpha + highAlpha;
+        int betaPower = lowBeta + highBeta;
+        int gammaPower = lowGamma + middleGamma;
+
+        // Công thức mức độ tỉnh táo
+        int alertness = 100 * (betaPower + gammaPower) / (delta + theta + alphaPower);
+
+        // Giới hạn kết quả trong khoảng [0, 100]
+        return Math.max(0, Math.min(100, alertness));
+    }
+    private void sendEEGDataToActivity() {
+        Intent intent = new Intent("com.example.brainwave.UPDATE_DATA");
+        intent.putExtra("delta", lastDelta);
+        intent.putExtra("theta", lastTheta);
+        intent.putExtra("lowAlpha", lastLowalpha);
+        intent.putExtra("highAlpha", lastHighAlpha);
+        intent.putExtra("lowBeta", lastLowBeta);
+        intent.putExtra("highBeta", lastHighBeta);
+        intent.putExtra("lowGamma", lastLowGamma);
+        intent.putExtra("middleGamma", lastMiddleGamma);
+
+        if (getContext() != null) {
+            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+            Log.d("EEGFragment", "Broadcast sent with data: " + lastDelta);
+        }
+    }
 
 
     private class AsyncTaskInfer extends AsyncTask<Void, Integer, Void> {
@@ -1112,6 +1156,53 @@ public class HomeFragment extends Fragment {
     private double[] extractFeatures(EEGPower[] data) {
         // Method to extract features for classification
         return new double[NUMBER_OF_FEATURES]; // Placeholder
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+            if (allGranted) {
+                startBluetoothProcesses(); // Chỉ chạy nếu quyền được cấp
+            } else {
+                Toast.makeText(getContext(), "Quyền Bluetooth bị từ chối!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void checkAndDeleteInvalidSessions(String userId) {
+        DatabaseReference userSessionsRef = FirebaseDatabase.getInstance()
+                .getReference().child("BrainData").child(userId).child("sessions");
+
+        userSessionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot sessionSnapshot : dataSnapshot.getChildren()) {
+                    String sessionId = sessionSnapshot.getKey();
+                    DataSnapshot infoSnapshot = sessionSnapshot.child("info");
+
+                    if (!infoSnapshot.exists() || infoSnapshot.getValue() == null) {
+                        // Xóa toàn bộ session nếu info không tồn tại hoặc rỗng
+                        sessionSnapshot.getRef().removeValue()
+                                .addOnSuccessListener(aVoid -> Log.d("Firebase", "Xóa session: " + sessionId))
+                                .addOnFailureListener(e -> Log.e("Firebase", "Lỗi khi xóa session: " + sessionId, e));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("Firebase", "Lỗi khi truy xuất session: " + databaseError.getMessage());
+            }
+        });
     }
 
     private void setFailState() {

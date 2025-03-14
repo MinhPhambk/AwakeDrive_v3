@@ -1,11 +1,22 @@
 package com.example.brainwave.activity;
 
+import static java.security.AccessController.getContext;
+
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -13,6 +24,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.brainwave.FragmentAbout;
 import com.example.brainwave.FragmentHome;
+import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.R;
 import com.example.brainwave.adapter.ViewPagerAdapter;
 import com.example.brainwave.fragment.AccountFragment;
@@ -22,9 +34,15 @@ import com.example.brainwave.fragment.PlayerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager2;
     private BottomNavigationView navigationView;
+    private SoundManager soundManager;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager2=findViewById(R.id.view_pager);
         viewPager2.setUserInputEnabled(false);
         navigationView=findViewById(R.id.nav_view);
+        soundManager = SoundManager.getInstance(this);
         ViewPagerAdapter pagerAdapter=new ViewPagerAdapter(this);
         viewPager2.setAdapter(pagerAdapter);
         pagerAdapter.addFragment(new HomeFragment());
@@ -40,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         pagerAdapter.addFragment(new AccountFragment());
         viewPager2.setOffscreenPageLimit(pagerAdapter.getItemCount());
         initControl();
+
     }
 
     private void initControl() {
@@ -64,17 +84,20 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.nav_home) {
+                    soundManager.playSound();
                     viewPager2.setCurrentItem(0, false);
                 } else if (itemId == R.id.nav_device) {
+                    soundManager.playSound();
                     viewPager2.setCurrentItem(1, false);
                 } else if (itemId == R.id.nav_player) {
+                    soundManager.playSound();
                     viewPager2.setCurrentItem(2, false);
                 }else if (itemId == R.id.nav_account) {
+                    soundManager.playSound();
                     viewPager2.setCurrentItem(3, false);
                 }
                 return true;
             }
         });
     }
-
 }

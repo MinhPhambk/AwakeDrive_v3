@@ -55,6 +55,7 @@
                 android:background="@drawable/edittext_background"
                 android:hint="Tên..."
                 android:padding="10dp"
+                android:textColor="@color/black"
                 android:textColorHint="#F26B6B6B" />
 
             <View
@@ -69,6 +70,7 @@
                 android:background="@drawable/edittext_background"
                 android:hint="Họ..."
                 android:padding="10dp"
+                android:textColor="@color/black"
                 android:textColorHint="#F26B6B6B" />
         </LinearLayout>
 
@@ -83,6 +85,7 @@
             android:background="@drawable/edittext_background"
             android:hint="Email hoặc số điện thoại..."
             android:padding="10dp"
+            android:textColor="@color/black"
             android:textColorHint="#F26B6B6B"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -101,6 +104,7 @@
             android:hint="Mật khẩu"
             android:inputType="textPassword"
             android:padding="10dp"
+            android:textColor="@color/black"
             android:textColorHint="#F26B6B6B"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -129,6 +133,7 @@
             android:hint="Nhập lại mật khẩu"
             android:inputType="textPassword"
             android:padding="10dp"
+            android:textColor="@color/black"
             android:textColorHint="#F26B6B6B"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

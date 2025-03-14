@@ -1,6 +1,7 @@
 package com.example.brainwave;
 
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +70,7 @@ public class FragmentMusic extends Fragment {
             public void onClick(View v) {
                 count_playbacks = 0;
                 if (player == null) {
-                    player = MediaPlayer.create(getActivity(), R.raw.test_delta_waves_4hz_3min_isochronic);
+                    player = MediaPlayer.create(getActivity(), Uri.parse("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp"));
                     player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
                         public void onCompletion(MediaPlayer mp) {

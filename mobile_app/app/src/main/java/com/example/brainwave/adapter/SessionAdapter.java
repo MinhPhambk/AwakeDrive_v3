@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.R;
 import com.example.brainwave.model.Session;
 import com.google.firebase.auth.FirebaseAuth;
@@ -60,7 +61,7 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
         private TextView txtSession, tv_session_name;
         private ImageView img_session;
         private FirebaseAuth firebaseAuth;
-
+        private SoundManager soundManager;
         public SessionViewHolder(@NonNull View itemView) {
             super(itemView);
             txtSession = itemView.findViewById(R.id.txtSession);
@@ -80,7 +81,11 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
             firebaseAuth = FirebaseAuth.getInstance();
             FirebaseUser user = firebaseAuth.getCurrentUser();
             tv_session_name.setText(user.getDisplayName());
-            itemView.setOnClickListener(v -> listener.onItemClick(session));
+            itemView.setOnClickListener(v ->{
+                soundManager=SoundManager.getInstance(itemView.getContext());
+                soundManager.playSound();
+                listener.onItemClick(session);
+            });
         }
 
         private String formatTimestamp(long timestampMillis) {
