@@ -1,11 +1,6 @@
 package com.example.brainwave.fragment;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,9 +23,9 @@ import com.example.brainwave.activity.LoginActivity;
 import com.example.brainwave.activity.PolicyActivity;
 import com.example.brainwave.activity.ProfileActivity;
 import com.example.brainwave.activity.SettingActivity;
+import com.example.brainwave.Utils;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -86,13 +81,17 @@ public class AccountFragment extends Fragment {
         });
         line_history.setOnClickListener(v -> {
             soundManager.playSound();
-            Intent intent = new Intent(getContext(), HistoryActivity.class);
-            startActivity(intent);
+            if(Utils.is_running){
+                Toast.makeText(getContext(),"Vui lòng dừng phiên đo",Toast.LENGTH_SHORT).show();
+            }else {
+                Intent intent = new Intent(getContext(), HistoryActivity.class);
+                startActivity(intent);
+            }
         });
         line_policy.setOnClickListener(v -> {
             soundManager.playSound();
             Intent intent = new Intent(getContext(), PolicyActivity.class);
-            intent.putExtra("url", "https://policies.google.com/");
+            intent.putExtra("url", "https://www.freeprivacypolicy.com/live/80deb4b1-9c60-4378-89e1-c58388b81223");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         });

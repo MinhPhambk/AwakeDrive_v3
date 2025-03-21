@@ -1,7 +1,5 @@
 package com.example.brainwave.fragment;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
@@ -26,8 +24,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,8 +51,7 @@ import com.example.brainwave.LocalDataSet;
 import com.example.brainwave.R;
 import com.example.brainwave.TrainModel;
 import com.example.brainwave.activity.DetailActivity;
-import com.example.brainwave.activity.LoginActivity;
-import com.example.brainwave.activity.SplashActivity;
+import com.example.brainwave.Utils;
 import com.example.brainwave.adapter.DeviceAdapter;
 import com.example.brainwave.model.Device;
 import com.google.firebase.auth.FirebaseAuth;
@@ -77,23 +72,17 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -123,7 +112,7 @@ public class HomeFragment extends Fragment {
     private static boolean isLoaded = false;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
-    private static String server_url = "http://192.168.0.1000:8080";
+    private static String server_url = "https://server-production-6a93.up.railway.app";
     private ConstraintLayout contraint_connect;
     private ConstraintLayout contraint_connected;
     private CardView cardView3;
@@ -424,6 +413,14 @@ public class HomeFragment extends Fragment {
         tv_time = view.findViewById(R.id.tv_time);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user = firebaseAuth.getCurrentUser();
+        File file = new File(getContext().getFilesDir(), "trained_nn.zip");
+
+        if (file.exists()) {
+            Log.d("CheckFile", "File đã tồn tại.");
+        } else {
+            Log.d("CheckFile", "File không tồn tại.");
+        }
+
         if (user.getDisplayName() != null) {
             txt_name_user.setText("Xin chào, " + user.getDisplayName().toString() + "!");
             txt_name_user_visible.setText("Xin chào, " + user.getDisplayName().toString() + "!");
@@ -440,6 +437,7 @@ public class HomeFragment extends Fragment {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                Utils.is_running = true;
                 soundManager.playSound();
                 if (running == true) {
                     Toast.makeText(getContext(), "Vui lòng stop trước khi start lại", Toast.LENGTH_SHORT).show();
@@ -506,6 +504,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View arg0) {
                 soundManager.playSound();
+                Utils.is_running = false;
                 running = false;
                 handler.removeCallbacks(updateTime);
                 stop();
@@ -522,7 +521,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
                 isLoading = true;
-                AsyncTaskRunner runner = new AsyncTaskLoadModel();
+                AsyncTaskLoadModel runner = new AsyncTaskLoadModel();
                 runner.execute();
             }
         });
@@ -567,71 +566,56 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private class AsyncTaskLoadModel extends AsyncTaskRunner {
-
+    private class AsyncTaskLoadModel extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            String content = "Loading model...";
-            Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Loading model...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
-        protected Integer doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params) {
             try {
-                String apiUrl = server_url + "/api/getmodel";
-                Context context = requireContext();
-                File pathFile = new File(context.getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
+                if (TrainModel.model == null) {
+                    // Đường dẫn tới file zip trong assets
+                    String zipFileName = "trained_nn.zip";
+                    File modelFile = new File(getContext().getFilesDir(), TrainModel.fileModelName);
 
-                URL url = new URL(apiUrl);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                    FileOutputStream outputStream = new FileOutputStream(pathFile);
-
-                    byte[] buffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
+                    // Nếu model chưa tồn tại, copy từ assets
+                    if (!modelFile.exists()) {
+                        copyFileFromAssets(zipFileName, modelFile);
                     }
 
-                    outputStream.close();
-                    inputStream.close();
-
-                    String content = "Zip file downloaded successfully.";
-                    System.out.println(content);
-                    isLoaded = true;
-                } else {
-                    System.out.println("Failed to download zip file. Response code: " + responseCode);
+                    // Load model từ file
+                    TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(modelFile, false);
+                    return true;
                 }
-
-                connection.disconnect();
-                TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
-
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            return 0;
+            return false;
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
-            super.onPostExecute(result);
-            if (isLoaded == true) {
-                String content = "Zip file downloaded successfully.";
-                Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show();
-            } else {
-                String content = "Failed to download zip file.";
-                Toast.makeText(getContext(), content, Toast.LENGTH_SHORT).show();
-            }
-            isLoading = false;
-            isLoaded = false;
+        protected void onPostExecute(Boolean isLoaded) {
+            super.onPostExecute(isLoaded);
+            String message = isLoaded ? "Model loaded successfully." : "Failed to load model.";
+            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         }
 
+        // Hàm copy file từ assets vào bộ nhớ trong
+        private void copyFileFromAssets(String assetFileName, File outputFile) throws IOException {
+            try (InputStream is = getContext().getAssets().open(assetFileName);
+                 FileOutputStream fos = new FileOutputStream(outputFile)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, length);
+                }
+            }
+        }
     }
+
 
     public void stop() {
         if (tgStreamReader != null) {
@@ -832,13 +816,13 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStop() {
+        super.onStop();
+        Utils.is_running = false;
+        running = false;
+        handler.removeCallbacks(updateTime);
         stop();
-        try {
-            getContext().unregisterReceiver(receiver);
-        } catch (IllegalArgumentException ignored) {
-        }
+        stopRecording();
     }
 
 
