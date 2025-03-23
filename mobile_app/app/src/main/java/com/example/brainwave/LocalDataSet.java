@@ -2,16 +2,16 @@ package com.example.brainwave;
 
 public class LocalDataSet {
     public static final String [] statues = {
-        "Sleepy", "Awake"
+        "Buồn ngủ", "Tỉnh táo"
     };
 
     static int label2index(String label) {
         int index;
         switch (label) {
-            case "Sleepy":
+            case "Buồn ngủ":
                 index = 0;
                 break;
-            case "Awake":
+            case "Tỉnh táo":
                 index = 1;
                 break;
             default:

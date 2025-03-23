@@ -189,6 +189,13 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
         printHashKey(getContext());
+        try {
+            System.loadLibrary("jnind4jcpu");
+            Log.i("Library", "Load library thành công!");
+        } catch (UnsatisfiedLinkError e) {
+            Log.e("Library", "Lỗi load library", e);
+        }
+
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
             button_update.setBackgroundColor(Color.BLACK);
@@ -466,6 +473,7 @@ public class HomeFragment extends Fragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    Log.d("TAGgggg_model", TrainModel.model+"");
 
 
                     if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
@@ -944,10 +952,12 @@ public class HomeFragment extends Fragment {
                     Log.d(TAG, "CODE_ATTENTION " + msg.arg1);
                     break;
                 case MindDataType.CODE_EEGPOWER:
-                    if (isPoorSignal == true) {
-                        isPoorSignal = false;
-                        break;
-                    }
+//                    if (isPoorSignal == true) {
+//                        isPoorSignal = false;
+//                        break;
+//                    }
+                    Log.d("TAG_dataset", "start");
+
                     EEGPower power = (EEGPower) msg.obj;
                     if (power.isValidate()) {
                         if (numbeOfSamples >= MAX_SAMPLES) {
@@ -1066,6 +1076,7 @@ public class HomeFragment extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             // run training process here
+            Log.d("TAG_background", "doInBackground: ");
             EEGPower[] EEGdata = dataForInfer.clone();
             double[] sample = new double[NUMBER_OF_FEATURES];
             for (int i = 0; i < MAX_SAMPLES; i++) {
@@ -1089,7 +1100,7 @@ public class HomeFragment extends Fragment {
 
                 sample[i * 16 + 15] = (double) (EEGdata[i].delta + EEGdata[i].theta) / (EEGdata[i].lowAlpha + EEGdata[i].highAlpha + EEGdata[i].lowBeta + EEGdata[i].highBeta);
             }
-
+            Log.d("TAG_simpple", sample+"");
             INDArray sample_to_infer = Nd4j.create(ArrayUtil.flattenDoubleArray(sample), sampleShape);
             INDArray predicted = TrainModel.model.output(sample_to_infer, false);
             INDArray index = predicted.argMax();
@@ -1107,8 +1118,8 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-
-            String predicted_label = "You are " + LocalDataSet.statues[currentStatus].toLowerCase() + ".";
+            String predicted_label = LocalDataSet.statues[currentStatus].toLowerCase() + ".";
+            Log.d("Taggggg_acb", predicted_label);
             tv_attention_value.setText(predicted_label);
         }
     }
