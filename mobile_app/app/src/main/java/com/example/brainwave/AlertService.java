@@ -21,30 +21,44 @@ public class AlertService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        if (intent == null) {
+            Log.e("AlertService", "Intent is null");
+            return;
+        }
+
         Bundle b = intent.getBundleExtra("Alert");
-        boolean status = b.getBoolean("Status");
+        if (b == null) {
+            Log.e("AlertService", "Bundle is null");
+            return;
+        }
+
+        boolean status = b.getBoolean("Status", false);
+        Log.d("AlertService", "Status: " + status);
+
         if (status) {
             playHorn();
-            Log.d("TAG", "Turn on alert! ");
         } else {
             stopPlayer();
         }
     }
 
+
+
     public void playHorn() {
         stopPlayer();
         player = new MediaPlayer();
         try {
-            player.setDataSource(this, Uri.parse("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp"));
+            String soundUrl = "https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3";
+            player.setDataSource(this, Uri.parse(soundUrl));
+
             player.setOnPreparedListener(mp -> {
+                Log.d("MediaPlayer", "Starting playback...");
                 player.start();
-                Log.d("MediaPlayer", "Playing alert sound...");
             });
 
-            player.setOnCompletionListener(mp -> {
-                mp.seekTo(0); // Quay lại đầu và phát lại
-                player.start();
-                Log.d("MediaPlayer", "Replay alert sound...");
+            player.setOnErrorListener((mp, what, extra) -> {
+                Log.e("MediaPlayer", "Error: " + what + ", " + extra);
+                return true; // Ngăn lỗi khác xảy ra
             });
 
             player.prepareAsync();
@@ -52,6 +66,7 @@ public class AlertService extends IntentService {
             Log.e("MediaPlayer", "Error initializing player", e);
         }
     }
+
 
 
     private void stopPlayer() {

@@ -47,14 +47,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nắng ấm xa dần"
+                        android:text="Cắt đôi nối sầu"
                         android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/music_time"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3:30" />
+                        android:text="0:00" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -91,14 +91,14 @@
                         android:id="@+id/tv_name_music"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nắng ấm xa dần"
+                        android:text="Cắt đôi nối sầu"
                         android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/music_time_2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3:30" />
+                        android:text="0:00" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -113,6 +113,7 @@
             app:cardElevation="5dp">
 
             <LinearLayout
+                android:id="@+id/music_3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -132,13 +133,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nắng ấm xa dần"
+                        android:text="Cắt đôi nối sầu"
                         android:textSize="20sp" />
 
                     <TextView
+                        android:id="@+id/music_time_3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3:30" />
+                        android:text="0:00" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -153,6 +155,7 @@
             app:cardElevation="5dp">
 
             <LinearLayout
+                android:id="@+id/music_4"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -172,13 +175,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nắng ấm xa dần"
+                        android:text="Cắt đôi nối sầu"
                         android:textSize="20sp" />
 
                     <TextView
+                        android:id="@+id/music_time_4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3:30" />
+                        android:text="0:00" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -193,6 +197,7 @@
             app:cardElevation="5dp">
 
             <LinearLayout
+                android:id="@+id/music_5"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -212,13 +217,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Nắng ấm xa dần"
+                        android:text="Cắt đôi nối sầu"
                         android:textSize="20sp" />
 
                     <TextView
+                        android:id="@+id/music_time_5"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3:30" />
+                        android:text="0:00" />
                 </LinearLayout>
 
             </LinearLayout>

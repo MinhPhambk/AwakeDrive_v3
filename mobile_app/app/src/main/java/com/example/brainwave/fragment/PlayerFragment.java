@@ -10,10 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.example.brainwave.Interface.SoundManager;
@@ -25,6 +27,7 @@ public class PlayerFragment extends Fragment {
 
     private float startY;
     private ImageView img_pause_play, img_player;
+    private CardView music_1, music_2, music_3;
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
     private ObjectAnimator diskAnimator;
@@ -41,6 +44,9 @@ public class PlayerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         img_pause_play = view.findViewById(R.id.img_pause_play);
         img_player = view.findViewById(R.id.img_player);
+        music_1 = view.findViewById(R.id.music_1);
+        music_2 = view.findViewById(R.id.music_2);
+        music_3 = view.findViewById(R.id.music_3);
         soundManager = SoundManager.getInstance(getContext());
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -70,8 +76,18 @@ public class PlayerFragment extends Fragment {
                 resumeMusic();
             }
         });
-    }
+        music_1.setOnClickListener(v -> {
+            playMusic("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3");
+        });
 
+        music_2.setOnClickListener(v -> {
+            playMusic("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3");
+        });
+
+        music_3.setOnClickListener(v -> {
+            playMusic("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3");
+        });
+    }
     public void playMusic(String songUrl) {
         try {
             mediaPlayer.reset();

@@ -31,8 +31,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 public class HistoryActivity extends AppCompatActivity {
@@ -54,6 +56,47 @@ public class HistoryActivity extends AppCompatActivity {
         sessionList = new ArrayList<>();
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            databaseRef = FirebaseDatabase.getInstance()
+                    .getReference("BrainData")
+                    .child(user.getUid())
+                    .child("sessions");
+        }
+        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int totalStatus = 0;  // Tổng giá trị status
+                int count = 0;        // Số lần ghi nhận status
+
+                // Duyệt qua tất cả các session và tính tổng status
+                for (DataSnapshot sessionSnapshot : snapshot.getChildren()) {
+                    DataSnapshot dataSnapshot = sessionSnapshot.child("data");
+                    for (DataSnapshot recordSnapshot : dataSnapshot.getChildren()) {
+                        if (recordSnapshot.child("status").exists()) {
+                            int status = recordSnapshot.child("status").getValue(Integer.class);
+                            totalStatus += status; // Cộng dồn giá trị status
+                            count++;              // Đếm số lần ghi nhận status
+                        }
+                    }
+                }
+
+                // Kiểm tra và tính phần trăm tỉnh táo
+                if (count > 0) {
+                    double alertnessPercentage = (totalStatus * 100.0) / (count * 100);
+                    TextView avg_status = findViewById(R.id.avg_status);
+                    avg_status.setText(String.format("%.2f%%", alertnessPercentage));
+                } else {
+                    Log.d("Firebase", "Không có dữ liệu status để tính toán.");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Lỗi khi đọc dữ liệu", error.toException());
+            }
+        });
+
+
         if (user != null) {
             databaseRef = FirebaseDatabase.getInstance()
                     .getReference("BrainData")

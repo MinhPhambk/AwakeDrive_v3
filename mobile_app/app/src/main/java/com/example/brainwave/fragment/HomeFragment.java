@@ -13,6 +13,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,12 +29,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -44,7 +46,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.brainwave.AlertService;
-import com.example.brainwave.AttentionActivity;
 import com.example.brainwave.DrawWaveView;
 import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.LocalDataSet;
@@ -87,7 +88,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class HomeFragment extends Fragment {
-    private static final String TAG = AttentionActivity.class.getSimpleName();
+    private static final String TAG = HomeFragment.class.getSimpleName();
     private TgStreamReader tgStreamReader;
 
     public static Intent intent;
@@ -120,7 +121,6 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvAvailable;
     private ImageView ivRefreshConnected;
     private ImageView ivRefreshAvailable;
-    Button button_update;
     Button btn_start;
     Button btn_stop, bt_detail;
 
@@ -144,6 +144,7 @@ public class HomeFragment extends Fragment {
     private int lastLowGamma = -1;
     private int lastMiddleGamma = -1;
     private int poorSignal = -1;
+    private int status = -1;
     private String uid = null;
     private boolean isRecording = true;
     private long startTime = 0;
@@ -152,6 +153,8 @@ public class HomeFragment extends Fragment {
     private int seconds = 0;
     private SoundManager soundManager;
     private boolean running = false;
+    private int alertnessLevel;
+    private Handler handler_alert =new Handler();
     private Handler handler = new Handler(Looper.getMainLooper());
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -188,6 +191,9 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
+        // load model
+        AsyncTaskLoadModel runner = new AsyncTaskLoadModel();
+        runner.execute();
         printHashKey(getContext());
         try {
             System.loadLibrary("jnind4jcpu");
@@ -198,15 +204,11 @@ public class HomeFragment extends Fragment {
 
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            button_update.setBackgroundColor(Color.BLACK);
-            button_update.setTextColor(Color.WHITE);
             btn_start.setBackgroundColor(Color.BLACK);
             btn_start.setTextColor(Color.WHITE);
             btn_stop.setBackgroundColor(Color.BLACK);
             btn_stop.setTextColor(Color.WHITE);
         } else {
-            button_update.setBackgroundColor(Color.WHITE);
-            button_update.setTextColor(Color.BLACK);
             btn_start.setBackgroundColor(Color.WHITE);
             btn_start.setTextColor(Color.BLACK);
             btn_stop.setBackgroundColor(Color.WHITE);
@@ -231,45 +233,20 @@ public class HomeFragment extends Fragment {
         ivRefreshConnected.setOnClickListener(v -> refreshConnectedDevices(ivRefreshConnected));
         ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
         availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
-//        connectedAdapter.setOnItemClickListener((device, position) -> {
-//            if (isProcessing) {
-//                return;
-//            }
-//            showToast("Connecting...", Toast.LENGTH_SHORT);
-//            numbeOfSamples = 0;
-//            isProcessing = true;
-//
-//            badPacketCount = 0;
-//
-//            // load model
-//            try {
-//                if (TrainModel.model == null) {
-////                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
-//                    File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
-//                    System.out.println("Model file path:");
-//                    System.out.println(pathFile);
-//                    TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//            if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
-//
-//                // Prepare for connecting
-//                tgStreamReader.stop();
-//                tgStreamReader.close();
-//            }
-//
-//            tgStreamReader.connect();
-////				tgStreamReader.connectAndStart();
-//        });
-        connectedAdapter.setOnUnpairClickListener((device, position) -> unpairDevice(position));
+        connectedAdapter.setOnUnpairClickListener((device, position) -> {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận hủy kết nối")
+                    .setMessage("Bạn có chắc chắn muốn hủy ghép nối với " + device.getName() + "?")
+                    .setPositiveButton("Đồng ý", (dialog, which) -> {
+                        unpairDevice(position);
+                    })
+                    .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
 
         checkPermissionsAndStart();
 
-        intent = new Intent(getContext(), AlertService.class);
+//        intent = new Intent(getContext(), AlertService.class);
 
         for (int i = 0; i < connectedDevices.size(); i++) {
             String device_name = connectedDevices.get(i).getName().trim();
@@ -312,6 +289,7 @@ public class HomeFragment extends Fragment {
         } else {
             Log.e("Firebase", "Người dùng chưa đăng nhập!");
         }
+        startUpdatingLevel();
 
     }
 
@@ -342,7 +320,7 @@ public class HomeFragment extends Fragment {
         brainData.put("highBeta", lastHighBeta);
         brainData.put("lowGamma", lastLowGamma);
         brainData.put("middleGamma", lastMiddleGamma);
-
+        brainData.put("status", alertnessLevel);
         databaseRef.child("sessions").child(sessionId).child("data").child(String.valueOf(timestamp))
                 .setValue(brainData)
                 .addOnSuccessListener(aVoid -> Log.d("Firebase", "Dữ liệu đã lưu"))
@@ -407,7 +385,6 @@ public class HomeFragment extends Fragment {
         ivRefreshConnected = view.findViewById(R.id.iv_refresh_connected);
         ivRefreshAvailable = view.findViewById(R.id.iv_refresh_available);
         tv_attention_value = getView().findViewById(R.id.tv_attention_value);
-        button_update = getView().findViewById(R.id.btn_update);
         btn_start = getView().findViewById(R.id.btn_attention_start);
         btn_stop = getView().findViewById(R.id.btn_attention_stop);
         bt_detail = getView().findViewById(R.id.bt_detail);
@@ -473,7 +450,7 @@ public class HomeFragment extends Fragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Log.d("TAGgggg_model", TrainModel.model+"");
+                    Log.d("TAGgggg_model", TrainModel.model + "");
 
 
                     if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
@@ -497,7 +474,7 @@ public class HomeFragment extends Fragment {
                             if (!isRecording) return;
 
                             if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
-                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1) {
+                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel !=-1) {
                                 saveDataToFirebase(uid, sessionId);
                             }
                             firebaseHandler.postDelayed(this, 1000);
@@ -517,20 +494,7 @@ public class HomeFragment extends Fragment {
                 handler.removeCallbacks(updateTime);
                 stop();
                 stopRecording();
-            }
-        });
-
-        button_update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                soundManager.playSound();
-
-                if (isLoading) {
-                    return;
-                }
-                isLoading = true;
-                AsyncTaskLoadModel runner = new AsyncTaskLoadModel();
-                runner.execute();
+                stopPlayer();
             }
         });
 
@@ -542,36 +506,6 @@ public class HomeFragment extends Fragment {
                 startActivity(detail);
             }
         });
-    }
-
-    private class AsyncTaskRunner extends AsyncTask<Void, Integer, Integer> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            ProgressBar bar = (ProgressBar) getView().findViewById(R.id.progressBar);
-            bar.setVisibility(View.INVISIBLE);
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            return 0;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            super.onPostExecute(result);
-            //Hide the progress bar now that we are finished
-            ProgressBar bar = (ProgressBar) getView().findViewById(R.id.progressBar);
-            bar.setVisibility(View.INVISIBLE);
-
-        }
-
     }
 
     private class AsyncTaskLoadModel extends AsyncTask<Void, Void, Boolean> {
@@ -633,16 +567,8 @@ public class HomeFragment extends Fragment {
         tv_attention_value.setText("--");
         numbeOfSamples = 0;
         isProcessing = false;
-        stopAlertService();
     }
 
-    private void stopAlertService() {
-        // Stop any active alert service if applicable
-        Bundle b = new Bundle();
-        b.putBoolean("Status", false);
-        intent.putExtra("Alert", b);
-        getActivity().startService(intent);
-    }
 
 
     private void checkPermissionsAndStart() {
@@ -819,7 +745,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        FirebaseUser user=firebaseAuth.getCurrentUser();
+        FirebaseUser user = firebaseAuth.getCurrentUser();
         checkAndDeleteInvalidSessions(user.getUid());
     }
 
@@ -831,6 +757,7 @@ public class HomeFragment extends Fragment {
         handler.removeCallbacks(updateTime);
         stop();
         stopRecording();
+        stopPlayer();
     }
 
 
@@ -937,6 +864,25 @@ public class HomeFragment extends Fragment {
     private static final int MSG_UPDATE_BAD_PACKET = 1001;
     private static final int MSG_UPDATE_STATE = 1002;
 
+    private int normalizeEEG(int rawValue) {
+        final int EEG_MIN = -2048;
+        final int EEG_MAX = 2048;
+        return (int) (((double) (rawValue - EEG_MIN) / (EEG_MAX - EEG_MIN)) * 100);
+    }
+
+    private void startUpdatingLevel() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                TextView level_alert = getView().findViewById(R.id.level_alert);
+                if (level_alert != null) {
+                    level_alert.setText(alertnessLevel + "/100");
+                }
+                handler.postDelayed(this, 5000); // Cập nhật lại sau 5 giây
+            }
+        }, 5000); // Bắt đầu sau 5 giây
+    }
+
     private Handler LinkDetectedHandler = new Handler(Looper.getMainLooper()) {
 
         @Override
@@ -944,6 +890,9 @@ public class HomeFragment extends Fragment {
             switch (msg.what) {
                 case MindDataType.CODE_RAW:
                     updateWaveView(msg.arg1);
+                    int normalizedLevel = normalizeEEG(msg.arg1);
+                    alertnessLevel = normalizedLevel;
+                    Log.d("TAGgggg_data1", "handleMessage: "+normalizedLevel);
                     break;
                 case MindDataType.CODE_MEDITATION:
                     Log.d(TAG, "HeadDataType.CODE_MEDITATION " + msg.arg1);
@@ -1013,12 +962,7 @@ public class HomeFragment extends Fragment {
                         lastHighBeta = power.highBeta;
                         lastLowGamma = power.lowGamma;
                         lastMiddleGamma = power.middleGamma;
-
                         sendEEGDataToActivity();
-//                        int alertness = calculateAlertness(lastDelta,lastTheta,lastLowalpha, lastHighAlpha, lastLowBeta, lastHighBeta,lastLowGamma ,lastMiddleGamma);
-////                        TextView level_alert = getView().findViewById(R.id.level_alert);
-////                        Log.d("TAG_alertness", alertness+"");
-////                        level_alert.setText(alertness+"/100");
                     }
                     break;
                 case MindDataType.CODE_POOR_SIGNAL:
@@ -1034,20 +978,6 @@ public class HomeFragment extends Fragment {
         }
     };
 
-    // Hàm tính mức độ tỉnh táo
-    public static int calculateAlertness(int delta, int theta, int lowAlpha, int highAlpha,
-                                            int lowBeta, int highBeta, int lowGamma, int middleGamma) {
-        // Tính tổng công suất của các dải
-        int alphaPower = lowAlpha + highAlpha;
-        int betaPower = lowBeta + highBeta;
-        int gammaPower = lowGamma + middleGamma;
-
-        // Công thức mức độ tỉnh táo
-        int alertness = 100 * (betaPower + gammaPower) / (delta + theta + alphaPower);
-
-        // Giới hạn kết quả trong khoảng [0, 100]
-        return Math.max(0, Math.min(100, alertness));
-    }
     private void sendEEGDataToActivity() {
         Intent intent = new Intent("com.example.brainwave.UPDATE_DATA");
         intent.putExtra("delta", lastDelta);
@@ -1064,7 +994,6 @@ public class HomeFragment extends Fragment {
             Log.d("EEGFragment", "Broadcast sent with data: " + lastDelta);
         }
     }
-
 
     private class AsyncTaskInfer extends AsyncTask<Void, Integer, Void> {
 
@@ -1100,16 +1029,15 @@ public class HomeFragment extends Fragment {
 
                 sample[i * 16 + 15] = (double) (EEGdata[i].delta + EEGdata[i].theta) / (EEGdata[i].lowAlpha + EEGdata[i].highAlpha + EEGdata[i].lowBeta + EEGdata[i].highBeta);
             }
-            Log.d("TAG_simpple", sample+"");
+
+            Log.d("TAG_simpple", sample + "");
             INDArray sample_to_infer = Nd4j.create(ArrayUtil.flattenDoubleArray(sample), sampleShape);
             INDArray predicted = TrainModel.model.output(sample_to_infer, false);
             INDArray index = predicted.argMax();
             int[] pl = index.toIntVector();
             currentStatus = pl[0];
-            if (pl[0] == 0) {
-                alertService();
-            }
-
+            Log.d("TAGgggg_Pl", currentStatus + "");
+            alertService(pl[0]);
             return null;
         }
 
@@ -1118,23 +1046,68 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            String predicted_label = LocalDataSet.statues[currentStatus].toLowerCase() + ".";
+            String predicted_label = LocalDataSet.statues[currentStatus];
             Log.d("Taggggg_acb", predicted_label);
             tv_attention_value.setText(predicted_label);
         }
     }
+    private int previousValue = -1;
 
-    public void alertService() {
-        Bundle b = new Bundle();
-        b.putBoolean("Status", true);
-        intent.putExtra("Alert", b);
-        getActivity().startService(intent);
+    public void alertService(int value) {
+        if (value == 0 && previousValue == 1) {
+            playHorn();
+        } else if (value == 1 && previousValue == 0) {
+            stopPlayer(); // Chỉ dừng nhạc nếu chuyển từ 0 sang 1
+        }
+
+        // Cập nhật giá trị trước đó
+        previousValue = value;
     }
 
-    private void startAlertService() {
-        Intent serviceIntent = new Intent(getContext(), AlertService.class);
-        getContext().startService(serviceIntent);
+
+    // MediaPlayer để phát nhạc
+    private MediaPlayer player;
+
+    // Hàm phát nhạc
+    private void playHorn() {
+        stopPlayer(); // Dừng nhạc trước khi phát mới
+
+        if (player == null) {
+            player = new MediaPlayer();
+        }
+
+        try {
+            // Đường dẫn file âm thanh
+            String soundUrl = "https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3";
+            player.setDataSource(getContext(), Uri.parse(soundUrl));
+
+            player.setOnPreparedListener(mp -> {
+                player.start();
+            });
+
+            player.setOnCompletionListener(mp -> {
+                player.seekTo(0); // Quay lại đầu file và phát lại
+                player.start();
+            });
+
+            player.prepareAsync(); // Chuẩn bị phát nhạc không chặn
+        } catch (Exception e) {
+            Log.e("MediaPlayer", "Lỗi phát nhạc", e);
+        }
     }
+
+    // Hàm dừng nhạc
+    private void stopPlayer() {
+        if (player != null) {
+            if (player.isPlaying()) {
+                player.stop(); // Dừng phát nếu đang phát
+                Log.d("MediaPlayer", "⏹️ Dừng phát nhạc.");
+            }
+            player.release(); // Giải phóng tài nguyên
+            player = null;
+        }
+    }
+
 
     private void showToast(final String message, final int duration) {
         if (getActivity() != null) {

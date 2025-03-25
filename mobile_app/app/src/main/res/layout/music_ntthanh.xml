@@ -72,6 +72,7 @@
 
         <!-- Second Image -->
         <androidx.cardview.widget.CardView
+            android:id="@+id/music_1"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="10dp"
@@ -80,33 +81,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <!-- ImageView hiển thị hình ảnh với background -->
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/baseline_music_note_24" /> <!-- Hiển thị hình ảnh trong ImageView -->
-
-
-            <!-- Play icon nằm chính giữa -->
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_play"
-                android:visibility="gone" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_play"
-                android:visibility="gone" />
+                android:src="@drawable/baseline_music_note_24" />
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/music_2"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="10dp"
@@ -115,35 +99,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <!-- ImageView hiển thị hình ảnh với background -->
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/baseline_music_note_24" /> <!-- Hiển thị hình ảnh trong ImageView -->
+                android:src="@drawable/baseline_music_note_24" />
 
-
-            <!-- Play icon nằm chính giữa -->
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_play"
-                android:visibility="gone" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_play"
-                android:visibility="gone" />
 
         </androidx.cardview.widget.CardView>
 
         <!-- Third Image -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/button2"
+            android:id="@+id/music_3"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_margin="10dp"
@@ -157,24 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/baseline_music_note_24" /> <!-- Hiển thị hình ảnh trong ImageView -->
-
-
-            <!-- Play icon nằm chính giữa -->
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_play"
-                android:visibility="gone" />
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_play"
-                android:visibility="gone" />
+                android:src="@drawable/baseline_music_note_24" />
 
         </androidx.cardview.widget.CardView>
     </LinearLayout>

@@ -1,29 +1,12 @@
 package com.example.brainwave.activity;
 
-import static java.security.AccessController.getContext;
-
-import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.brainwave.FragmentAbout;
-import com.example.brainwave.FragmentHome;
 import com.example.brainwave.Interface.SoundManager;
 import com.example.brainwave.R;
 import com.example.brainwave.adapter.ViewPagerAdapter;
@@ -33,9 +16,6 @@ import com.example.brainwave.fragment.HomeFragment;
 import com.example.brainwave.fragment.PlayerFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ViewPager2 viewPager2;

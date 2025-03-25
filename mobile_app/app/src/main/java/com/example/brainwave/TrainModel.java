@@ -57,7 +57,7 @@ public class TrainModel {
 
     public static MultiLayerNetwork model = null;
 
-    public static MultiLayerNetwork TrainingModel(File file) {
+    public static MultiLayerNetwork TrainingModel(File file) {  
         MultiLayerNetwork transferred_model = model;
         if (!isTransferred) {
             transferred_model = new TransferLearning.Builder(model)
@@ -76,4 +76,6 @@ public class TrainModel {
         transferred_model.fit(trainIter, nEpochs);
         return transferred_model;
     }
+
+
 }
