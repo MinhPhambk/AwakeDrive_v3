@@ -154,7 +154,10 @@ public class HomeFragment extends Fragment {
     private SoundManager soundManager;
     private boolean running = false;
     private int alertnessLevel;
-    private Handler handler_alert =new Handler();
+    TextView level_alert;
+    private boolean isReceiverRegistered = false;
+
+    private Handler handler_alert = new Handler();
     private Handler handler = new Handler(Looper.getMainLooper());
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -162,16 +165,17 @@ public class HomeFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
+
+                // Kiểm tra Fragment có còn gắn với Activity không
+                if (!isAdded() || getContext() == null) {
+                    return; // Ngăn lỗi khi Fragment không gắn vào Context
+                }
+
+                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
+                        != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
+
                 if (device != null && device.getName() != null && !isDeviceInList(device.getName())) {
                     availableDevices.add(new Device(device.getName(), device.getAddress(), "Có sẵn"));
                     availableAdapter.notifyDataSetChanged();
@@ -179,6 +183,7 @@ public class HomeFragment extends Fragment {
             }
         }
     };
+
 
     @Nullable
     @Override
@@ -234,15 +239,22 @@ public class HomeFragment extends Fragment {
         ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
         availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
         connectedAdapter.setOnUnpairClickListener((device, position) -> {
-            new AlertDialog.Builder(requireContext())
+            AlertDialog dialog = new AlertDialog.Builder(requireContext())
                     .setTitle("Xác nhận hủy kết nối")
                     .setMessage("Bạn có chắc chắn muốn hủy ghép nối với " + device.getName() + "?")
-                    .setPositiveButton("Đồng ý", (dialog, which) -> {
-                        unpairDevice(position);
-                    })
-                    .setNegativeButton("Hủy", (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton("Đồng ý", (dialog1, which) -> unpairDevice(position))
+                    .setNegativeButton("Hủy", (dialog12, which) -> dialog12.dismiss())
                     .show();
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+
+            TextView messageView = dialog.findViewById(android.R.id.message);
+            if (messageView != null) {
+                messageView.setTextColor(Color.BLACK);
+            }
         });
+
 
         checkPermissionsAndStart();
 
@@ -395,6 +407,7 @@ public class HomeFragment extends Fragment {
         txt_name_user = view.findViewById(R.id.txt_name_user);
         txt_name_user_visible = view.findViewById(R.id.txt_name_user_visible);
         tv_time = view.findViewById(R.id.tv_time);
+        level_alert = view.findViewById(R.id.level_alert);
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser user = firebaseAuth.getCurrentUser();
         File file = new File(getContext().getFilesDir(), "trained_nn.zip");
@@ -474,7 +487,7 @@ public class HomeFragment extends Fragment {
                             if (!isRecording) return;
 
                             if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
-                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel !=-1) {
+                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel != -1) {
                                 saveDataToFirebase(uid, sessionId);
                             }
                             firebaseHandler.postDelayed(this, 1000);
@@ -512,7 +525,7 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Toast.makeText(getContext(), "Loading model...", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Loading model...");
         }
 
         @Override
@@ -542,7 +555,7 @@ public class HomeFragment extends Fragment {
         protected void onPostExecute(Boolean isLoaded) {
             super.onPostExecute(isLoaded);
             String message = isLoaded ? "Model loaded successfully." : "Failed to load model.";
-            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, message);
         }
 
         // Hàm copy file từ assets vào bộ nhớ trong
@@ -568,7 +581,6 @@ public class HomeFragment extends Fragment {
         numbeOfSamples = 0;
         isProcessing = false;
     }
-
 
 
     private void checkPermissionsAndStart() {
@@ -752,6 +764,10 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        if (isReceiverRegistered) {
+            requireContext().unregisterReceiver(receiver);
+            isReceiverRegistered = false;
+        }
         Utils.is_running = false;
         running = false;
         handler.removeCallbacks(updateTime);
@@ -760,6 +776,14 @@ public class HomeFragment extends Fragment {
         stopPlayer();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!isReceiverRegistered) {
+            requireContext().registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+            isReceiverRegistered = true;
+        }
+    }
 
     DrawWaveView waveView = null;
 
@@ -874,7 +898,6 @@ public class HomeFragment extends Fragment {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                TextView level_alert = getView().findViewById(R.id.level_alert);
                 if (level_alert != null) {
                     level_alert.setText(alertnessLevel + "/100");
                 }
@@ -892,7 +915,7 @@ public class HomeFragment extends Fragment {
                     updateWaveView(msg.arg1);
                     int normalizedLevel = normalizeEEG(msg.arg1);
                     alertnessLevel = normalizedLevel;
-                    Log.d("TAGgggg_data1", "handleMessage: "+normalizedLevel);
+                    Log.d("TAGgggg_data1", "handleMessage: " + normalizedLevel);
                     break;
                 case MindDataType.CODE_MEDITATION:
                     Log.d(TAG, "HeadDataType.CODE_MEDITATION " + msg.arg1);
@@ -1051,25 +1074,37 @@ public class HomeFragment extends Fragment {
             tv_attention_value.setText(predicted_label);
         }
     }
+
     private int previousValue = -1;
+    private long zeroStartTime = 0; // Lưu thời điểm bắt đầu value = 0
+    private Handler handler_delay = new Handler();
+    private boolean isPlaying = false; // Theo dõi trạng thái phát nhạc
 
     public void alertService(int value) {
-        if (value == 0 && previousValue == 1) {
-            playHorn();
+        if (value == 0) {
+            if (previousValue == 1) {
+                zeroStartTime = System.currentTimeMillis();
+            }
+            handler_delay.postDelayed(() -> {
+                if (value == 0 && (System.currentTimeMillis() - zeroStartTime) >= 10000 && !isPlaying) {
+                    playHorn();
+                }
+            }, 3000);
         } else if (value == 1 && previousValue == 0) {
-            stopPlayer(); // Chỉ dừng nhạc nếu chuyển từ 0 sang 1
+            // Dừng nhạc sau 2 giây
+            handler_delay.postDelayed(this::stopPlayer, 5000);
         }
 
-        // Cập nhật giá trị trước đó
         previousValue = value;
     }
-
 
     // MediaPlayer để phát nhạc
     private MediaPlayer player;
 
     // Hàm phát nhạc
     private void playHorn() {
+        if (isPlaying) return; // Nếu đang phát thì không phát lại
+
         stopPlayer(); // Dừng nhạc trước khi phát mới
 
         if (player == null) {
@@ -1083,6 +1118,7 @@ public class HomeFragment extends Fragment {
 
             player.setOnPreparedListener(mp -> {
                 player.start();
+                isPlaying = true;
             });
 
             player.setOnCompletionListener(mp -> {
@@ -1105,6 +1141,7 @@ public class HomeFragment extends Fragment {
             }
             player.release(); // Giải phóng tài nguyên
             player = null;
+            isPlaying = false;
         }
     }
 

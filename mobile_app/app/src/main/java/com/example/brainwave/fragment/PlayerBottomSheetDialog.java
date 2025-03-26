@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment;
 import com.example.brainwave.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.R.id.design_bottom_sheet;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

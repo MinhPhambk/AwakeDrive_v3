@@ -12,11 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -28,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.brainwave.R;
@@ -53,6 +56,16 @@ public class DeviceFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
                 if (device != null && device.getName() != null && !isDeviceInList(device.getName())) {
                     availableDevices.add(new Device(device.getName(), device.getAddress(), "Có sẵn"));
                     availableAdapter.notifyDataSetChanged();
@@ -95,7 +108,22 @@ public class DeviceFragment extends Fragment {
         ivRefreshAvailable.setOnClickListener(v -> refreshAvailableDevices(ivRefreshAvailable));
         availableAdapter.setOnItemClickListener((device, position) -> connectToDevice(position));
 //        connectedAdapter.setOnItemClickListener((device, position) -> connectInPairedDevices(position));
-        connectedAdapter.setOnUnpairClickListener((device, position) -> unpairDevice(position));
+        connectedAdapter.setOnUnpairClickListener((device, position) -> {
+            AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                    .setTitle("Xác nhận hủy kết nối")
+                    .setMessage("Bạn có chắc chắn muốn hủy ghép nối với " + device.getName() + "?")
+                    .setPositiveButton("Đồng ý", (dialog1, which) -> unpairDevice(position))
+                    .setNegativeButton("Hủy", (dialog12, which) -> dialog12.dismiss())
+                    .show();
+
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+
+            TextView messageView = dialog.findViewById(android.R.id.message);
+            if (messageView != null) {
+                messageView.setTextColor(Color.BLACK);
+            }
+        });
         startBluetoothProcesses();
     }
 
@@ -110,6 +138,16 @@ public class DeviceFragment extends Fragment {
     }
 
     private void fetchPairedDevices() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         if (pairedDevices != null) {
             for (BluetoothDevice device : pairedDevices) {
@@ -133,6 +171,16 @@ public class DeviceFragment extends Fragment {
 
 
     private void discoverDevices() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         bluetoothAdapter.cancelDiscovery();
         bluetoothAdapter.startDiscovery();
         getContext().registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
@@ -151,6 +199,16 @@ public class DeviceFragment extends Fragment {
         Device device = availableDevices.get(position);
         BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(device.getAddress());
         try {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             bluetoothDevice.createBond(); // Request pairing
             if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
                 connectedDevices.add(new Device(device.getName(), device.getAddress(), "Đã kết nối"));
@@ -207,6 +265,16 @@ public class DeviceFragment extends Fragment {
         rotateAnimator.start();
 
         // Làm mới danh sách thiết bị khả dụng
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         bluetoothAdapter.cancelDiscovery();
         availableDevices.clear();
         availableAdapter.notifyDataSetChanged();
