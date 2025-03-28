@@ -35,7 +35,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/edittext_background"
-        android:hint="Email hoặc số điện thoại..."
+        android:hint="Email"
         android:padding="10dp"
         android:textColorHint="#F26B6B6B"
         android:textColor="@color/black"

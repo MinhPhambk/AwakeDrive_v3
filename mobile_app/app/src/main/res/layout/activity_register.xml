@@ -83,7 +83,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/edittext_background"
-            android:hint="Email hoặc số điện thoại..."
+            android:hint="Email"
             android:padding="10dp"
             android:textColor="@color/black"
             android:textColorHint="#F26B6B6B"

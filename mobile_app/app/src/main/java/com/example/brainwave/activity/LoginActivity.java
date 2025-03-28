@@ -126,7 +126,8 @@ public class LoginActivity extends AppCompatActivity {
             if (!hasBluetoothPermissions()) {
                 Toast.makeText(this, "Vui lòng cấp đủ quyền để đăng nhập", Toast.LENGTH_SHORT).show();
             } else {
-                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
+                Toast.makeText(this, "Chức năng đang phát triển", Toast.LENGTH_SHORT).show();
+//                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile"));
             }
         });
         LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
