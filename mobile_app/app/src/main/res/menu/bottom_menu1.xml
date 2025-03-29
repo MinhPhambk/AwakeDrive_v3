@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/nav_device"
-        android:icon="@drawable/device"
+        android:icon="@drawable/headphone_device"
         android:title="Device" />
 
     <item

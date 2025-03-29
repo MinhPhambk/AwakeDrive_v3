@@ -1,5 +1,7 @@
 package com.example.brainwave.fragment;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.bluetooth.BluetoothAdapter;
@@ -12,7 +14,9 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -21,11 +25,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -156,7 +162,6 @@ public class HomeFragment extends Fragment {
     private int alertnessLevel;
     TextView level_alert;
     private boolean isReceiverRegistered = false;
-
     private Handler handler_alert = new Handler();
     private Handler handler = new Handler(Looper.getMainLooper());
 
@@ -192,9 +197,36 @@ public class HomeFragment extends Fragment {
 
     }
 
+    private AudioManager audioManager;
+    private ContentObserver volumeObserver;
+    private int threshold;
+
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        requireActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        btn_start = getView().findViewById(R.id.btn_attention_start);
+        audioManager = (AudioManager) requireContext().getSystemService(Context.AUDIO_SERVICE);
+
+        int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        threshold = (int) (maxVolume * 0.4); // 40% mức tối đa
+
+        // Kiểm tra và cập nhật trạng thái nút ngay từ đầu
+        updateButtonState();
+
+        // Tạo ContentObserver để lắng nghe thay đổi âm lượng
+        volumeObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+            @Override
+            public void onChange(boolean selfChange) {
+                updateButtonState();
+            }
+        };
+
+        // Đăng ký ContentObserver theo dõi thay đổi âm lượng
+        requireContext().getContentResolver().registerContentObserver(
+                Settings.System.CONTENT_URI, true, volumeObserver);
+
         initView(view);
         // load model
         AsyncTaskLoadModel runner = new AsyncTaskLoadModel();
@@ -255,7 +287,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-
         checkPermissionsAndStart();
 
 //        intent = new Intent(getContext(), AlertService.class);
@@ -305,6 +336,13 @@ public class HomeFragment extends Fragment {
 
     }
 
+    private void updateButtonState() {
+        if (volumeObserver != null) {
+            requireContext().getContentResolver().unregisterContentObserver(volumeObserver);
+        }
+
+    }
+
     private Runnable updateTime = new Runnable() {
         @Override
         public void run() {
@@ -321,7 +359,6 @@ public class HomeFragment extends Fragment {
 
     private void saveDataToFirebase(String uid, String sessionId) {
         long timestamp = System.currentTimeMillis();
-
         Map<String, Object> brainData = new HashMap<>();
         brainData.put("timestamp", timestamp);
         brainData.put("delta", lastDelta);
@@ -389,7 +426,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
     private void initView(View view) {
         soundManager = SoundManager.getInstance(getContext());
         rvConnected = view.findViewById(R.id.rv_connected_devices);
@@ -397,7 +433,6 @@ public class HomeFragment extends Fragment {
         ivRefreshConnected = view.findViewById(R.id.iv_refresh_connected);
         ivRefreshAvailable = view.findViewById(R.id.iv_refresh_available);
         tv_attention_value = getView().findViewById(R.id.tv_attention_value);
-        btn_start = getView().findViewById(R.id.btn_attention_start);
         btn_stop = getView().findViewById(R.id.btn_attention_stop);
         bt_detail = getView().findViewById(R.id.bt_detail);
         wave_layout = getView().findViewById(R.id.wave_layout);
@@ -434,67 +469,73 @@ public class HomeFragment extends Fragment {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+                if (currentVolume < threshold) {
+                    Toast.makeText(getContext(), "Vui lòng tăng âm lượng lên ít nhất 40% để tiếp tục!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Utils.is_running = true;
                 soundManager.playSound();
                 if (running == true) {
                     Toast.makeText(getContext(), "Vui lòng stop trước khi start lại", Toast.LENGTH_SHORT).show();
-                } else {
+                } else
                     running = true;
-                    seconds = 0;
-                    handler.post(updateTime);
-                    if (isProcessing) {
-                        return;
-                    }
-                    showToast("Connecting...", Toast.LENGTH_SHORT);
-                    numbeOfSamples = 0;
-                    isProcessing = true;
+                seconds = 0;
+                handler.post(updateTime);
+                if (isProcessing) {
+                    return;
+                }
+                showToast("Connecting...", Toast.LENGTH_SHORT);
+                numbeOfSamples = 0;
+                isProcessing = true;
 
-                    badPacketCount = 0;
+                badPacketCount = 0;
 
-                    // load model
-                    try {
-                        if (TrainModel.model == null) {
+                // load model
+                try {
+                    if (TrainModel.model == null) {
 //                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
-                            File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
-                            System.out.println("Model file path:");
-                            System.out.println(pathFile);
-                            TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
+                        System.out.println("Model file path:");
+                        System.out.println(pathFile);
+                        TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
                     }
-                    Log.d("TAGgggg_model", TrainModel.model + "");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Log.d("TAGgggg_model", TrainModel.model + "");
 
 
-                    if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
+                if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
 
-                        // Prepare for connecting
-                        tgStreamReader.stop();
-                        tgStreamReader.close();
-                    }
+                    // Prepare for connecting
+                    tgStreamReader.stop();
+                    tgStreamReader.close();
+                }
 
-                    tgStreamReader.connect();
+                tgStreamReader.connect();
 //				tgStreamReader.connectAndStart();
 //                startRecording();
-                    isRecording = true;
-                    startTime = System.currentTimeMillis();
-                    sessionId = String.valueOf(startTime);
-                    endTime = 0;
-                    firebaseHandler = new Handler();
-                    firebaseRunnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!isRecording) return;
+                isRecording = true;
+                startTime = System.currentTimeMillis();
+                sessionId = String.valueOf(startTime);
+                endTime = 0;
+                firebaseHandler = new Handler();
+                firebaseRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isRecording) return;
 
-                            if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
-                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel != -1) {
-                                saveDataToFirebase(uid, sessionId);
-                            }
-                            firebaseHandler.postDelayed(this, 1000);
+                        if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
+                                lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel != -1) {
+                            saveDataToFirebase(uid, sessionId);
                         }
-                    };
-                    firebaseHandler.post(firebaseRunnable);
-                }
+                        firebaseHandler.postDelayed(this, 1000);
+                    }
+                };
+                firebaseHandler.post(firebaseRunnable);
             }
         });
         btn_stop.setOnClickListener(new View.OnClickListener() {
@@ -571,7 +612,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
     public void stop() {
         if (tgStreamReader != null) {
             tgStreamReader.stop();
@@ -581,7 +621,6 @@ public class HomeFragment extends Fragment {
         numbeOfSamples = 0;
         isProcessing = false;
     }
-
 
     private void checkPermissionsAndStart() {
         List<String> permissionsNeeded = new ArrayList<>();
@@ -634,7 +673,6 @@ public class HomeFragment extends Fragment {
             connectedAdapter.notifyDataSetChanged(); // Cập nhật UI
         }
     }
-
 
     private void discoverDevices() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
@@ -712,7 +750,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
     private void refreshConnectedDevices(ImageView ivRefreshConnected) {
         ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(ivRefreshConnected, "rotation", 0f, 360f);
         rotateAnimator.setDuration(500); // Thời gian xoay 500ms
@@ -777,6 +814,14 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (volumeObserver != null) {
+            requireContext().getContentResolver().unregisterContentObserver(volumeObserver);
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         if (!isReceiverRegistered) {
@@ -832,7 +877,6 @@ public class HomeFragment extends Fragment {
                     break;
                 case ConnectionStates.STATE_FAILED:
                     setFailState();
-                    showToast("Connection failed!\nPlease check your bluetooth device", Toast.LENGTH_SHORT);
                     break;
             }
             Message msg = LinkDetectedHandler.obtainMessage();
@@ -1157,7 +1201,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
     private double[] extractFeatures(EEGPower[] data) {
         // Method to extract features for classification
         return new double[NUMBER_OF_FEATURES]; // Placeholder
@@ -1214,7 +1257,7 @@ public class HomeFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getContext(), "Mất kết nối!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Không có kết nối!", Toast.LENGTH_SHORT).show();
                 if (tgStreamReader != null) {
                     tgStreamReader.stop();
                     tgStreamReader.close();
