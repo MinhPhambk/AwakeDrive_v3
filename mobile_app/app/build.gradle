@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.brainwave'
+    namespace 'com.awakedrive.brainwave'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.brainwave"
+        applicationId "com.awakedrive.brainwave"
         minSdk 27
         targetSdk 34
         versionCode 1
@@ -22,6 +22,57 @@ android {
         exclude 'META-INF/proguard/androidx-annotations.pro'
         exclude 'META-INF/native-image/**'
         exclude 'META-INF/DEPENDENCIES'
+        exclude 'lib/**/include/cblas.h'
+        exclude 'lib/arm64-v8a/include/f77blas.h'
+        exclude 'lib/arm64-v8a/include/cblas.h'
+        exclude 'lib/arm64-v8a/include/gif_lib.h'
+        exclude 'lib/arm64-v8a/include/jconfig.h'
+        exclude 'lib/arm64-v8a/include/jerror.h'
+        exclude '**/*.h'
+        exclude '**/*.hbb'
+        exclude 'lib/arm64-v8a/include/opencv2/aruco.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/aruco/charuco.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/aruco/dictionary.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/aruco/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/barcode.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/*.hpp'
+        exclude 'lib/arm64-v8a/include/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/bioinspired/bioinspired.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/bioinspired/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/calib3d/calib3d.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/calib3d/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/affine.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/block.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/detail/color_detail.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/detail/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/detail/async_promise.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/detail/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/hal/hal.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/core/hal/*.hpp'
+        exclude 'lib/arm64-v8a/include/opencv2/**/*.hpp'
+        exclude 'lib/arm64-v8a/include/tiffio.hxx'
+        exclude 'lib/arm64-v8a/include/*.hxx'
+        exclude '**/*.hxx'
+        exclude 'lib/arm64-v8a/lib/cmake/LeptonicaConfig-version.cmake'
+        exclude 'lib/arm64-v8a/lib/cmake/*.cmake'
+        exclude 'lib/arm64-v8a/lib/**/*.cmake'
+        exclude '**/*.cmake'
+        exclude '**/*.la'
+        exclude '**/*.pc'
+        exclude '**/*.xml'
+        exclude '**/*.txt'
+        exclude 'lib/arm64-v8a/sdk/etc/licenses/ade-LICENSE'
+        exclude 'lib/arm64-v8a/sdk/**'
+        exclude 'lib/armeabi-v7a/**.hpp'
+        exclude 'lib/armeabi-v7a/**'
+        exclude 'lib/**/*.hpp'
+        exclude 'lib/**/*.h'
+        exclude 'lib/x86/sdk/etc/licenses/ade-LICENSE'
+        exclude 'lib/x86/sdk/etc/**'
+        exclude 'lib/x86/sdk/**'
+        exclude 'lib/x86_64/sdk/**'
     }
 
     buildTypes {
