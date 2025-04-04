@@ -2,13 +2,17 @@ package com.awakedrive.brainwave.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.awakedrive.brainwave.Interface.SoundManager;
 import com.awakedrive.brainwave.R;
+import com.awakedrive.brainwave.Utils;
 import com.awakedrive.brainwave.adapter.ViewPagerAdapter;
 import com.awakedrive.brainwave.fragment.AccountFragment;
 import com.awakedrive.brainwave.fragment.DeviceFragment;
@@ -27,11 +31,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-        viewPager2=findViewById(R.id.view_pager);
+        viewPager2 = findViewById(R.id.view_pager);
         viewPager2.setUserInputEnabled(false);
-        navigationView=findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         soundManager = SoundManager.getInstance(this);
-        ViewPagerAdapter pagerAdapter=new ViewPagerAdapter(this);
+        ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(this);
         viewPager2.setAdapter(pagerAdapter);
         pagerAdapter.addFragment(new HomeFragment());
         pagerAdapter.addFragment(new DeviceFragment());
@@ -39,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         pagerAdapter.addFragment(new AccountFragment());
         viewPager2.setOffscreenPageLimit(pagerAdapter.getItemCount());
         initControl();
-
     }
 
     private void initControl() {
@@ -53,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                     navigationView.getMenu().findItem(R.id.nav_device).setChecked(true);
                 } else if (position == 2) {
                     navigationView.getMenu().findItem(R.id.nav_player).setChecked(true);
-                }else if (position == 3) {
+                } else if (position == 3) {
                     navigationView.getMenu().findItem(R.id.nav_account).setChecked(true);
                 }
             }
@@ -72,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (itemId == R.id.nav_player) {
                     soundManager.playSound();
                     viewPager2.setCurrentItem(2, false);
-                }else if (itemId == R.id.nav_account) {
+                } else if (itemId == R.id.nav_account) {
                     soundManager.playSound();
                     viewPager2.setCurrentItem(3, false);
                 }
@@ -80,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
 }

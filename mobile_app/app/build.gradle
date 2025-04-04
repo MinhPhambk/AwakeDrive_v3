@@ -13,8 +13,8 @@ android {
         applicationId "com.awakedrive.brainwave"
         minSdk 27
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "3.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -22,57 +22,30 @@ android {
         exclude 'META-INF/proguard/androidx-annotations.pro'
         exclude 'META-INF/native-image/**'
         exclude 'META-INF/DEPENDENCIES'
-        exclude 'lib/**/include/cblas.h'
-        exclude 'lib/arm64-v8a/include/f77blas.h'
-        exclude 'lib/arm64-v8a/include/cblas.h'
-        exclude 'lib/arm64-v8a/include/gif_lib.h'
-        exclude 'lib/arm64-v8a/include/jconfig.h'
-        exclude 'lib/arm64-v8a/include/jerror.h'
+        pickFirst 'lib/**/libjnind4jcpu.so'
+        pickFirst '**/*.so'
         exclude '**/*.h'
-        exclude '**/*.hbb'
-        exclude 'lib/arm64-v8a/include/opencv2/aruco.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/aruco/charuco.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/aruco/dictionary.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/aruco/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/barcode.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/*.hpp'
-        exclude 'lib/arm64-v8a/include/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/bioinspired/bioinspired.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/bioinspired/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/calib3d/calib3d.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/calib3d/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/affine.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/block.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/detail/color_detail.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/cuda/detail/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/detail/async_promise.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/detail/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/hal/hal.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/core/hal/*.hpp'
-        exclude 'lib/arm64-v8a/include/opencv2/**/*.hpp'
-        exclude 'lib/arm64-v8a/include/tiffio.hxx'
-        exclude 'lib/arm64-v8a/include/*.hxx'
-        exclude '**/*.hxx'
-        exclude 'lib/arm64-v8a/lib/cmake/LeptonicaConfig-version.cmake'
-        exclude 'lib/arm64-v8a/lib/cmake/*.cmake'
-        exclude 'lib/arm64-v8a/lib/**/*.cmake'
+        exclude '**/*.hpp'
         exclude '**/*.cmake'
+        exclude '**/*.hxx'
         exclude '**/*.la'
         exclude '**/*.pc'
         exclude '**/*.xml'
         exclude '**/*.txt'
-        exclude 'lib/arm64-v8a/sdk/etc/licenses/ade-LICENSE'
-        exclude 'lib/arm64-v8a/sdk/**'
-        exclude 'lib/armeabi-v7a/**.hpp'
-        exclude 'lib/armeabi-v7a/**'
-        exclude 'lib/**/*.hpp'
-        exclude 'lib/**/*.h'
-        exclude 'lib/x86/sdk/etc/licenses/ade-LICENSE'
-        exclude 'lib/x86/sdk/etc/**'
-        exclude 'lib/x86/sdk/**'
-        exclude 'lib/x86_64/sdk/**'
+        exclude '**/*-LICENSE'
+        exclude '**/*.md'
+        exclude '**/*.BSD'
+        exclude '**/*.GPL'
+        exclude '**/*-README'
+        exclude '**/*-copyright'
+        exclude '**/*.ijg'
+        exclude '**/*-COPYRIGHT'
+        exclude '**/*.ilmbase'
+        exclude '**/*.openexr'
+        exclude '**/*.yml'
+        exclude '**/*.supp'
+        exclude '**/*.mk'
+        doNotStrip "lib/**/libyourlibrary.so"
     }
 
     buildTypes {
@@ -122,6 +95,7 @@ dependencies {
         exclude group: 'org.bytedeco', module: 'hdf5-platform'
         exclude group: 'org.nd4j', module: 'nd4j-base64'
     }
+
     implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta4'
     implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta4', classifier: "android-arm"
     implementation group: 'org.nd4j', name: 'nd4j-native', version: '1.0.0-beta4', classifier: "android-arm64"

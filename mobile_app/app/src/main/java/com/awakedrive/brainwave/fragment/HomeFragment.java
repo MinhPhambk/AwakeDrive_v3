@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.graphics.Color;
@@ -77,6 +78,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,7 +113,7 @@ public class HomeFragment extends Fragment {
     private static final int NUMBER_OF_FEATURES = 80;
     private static final int[] sampleShape = {1, NUMBER_OF_FEATURES};
 
-    private static int currentStatus;
+    private static int currentStatus = 1;
     private static boolean isLoading = false;
     private static boolean isLoaded = false;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
@@ -161,6 +163,8 @@ public class HomeFragment extends Fragment {
     private boolean isReceiverRegistered = false;
     private Handler handler_alert = new Handler();
     private Handler handler = new Handler(Looper.getMainLooper());
+    private HomeFragment.AsyncTaskInfer runner;
+
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -229,12 +233,12 @@ public class HomeFragment extends Fragment {
         AsyncTaskLoadModel runner = new AsyncTaskLoadModel();
         runner.execute();
         printHashKey(getContext());
-        try {
-            System.loadLibrary("jnind4jcpu");
-            Log.i("Library", "Load library thành công!");
-        } catch (UnsatisfiedLinkError e) {
-            Log.e("Library", "Lỗi load library", e);
-        }
+//        try {
+//            System.loadLibrary("jnind4jcpu");
+//            Log.i("Library", "Load library thành công!");
+//        } catch (UnsatisfiedLinkError e) {
+//            Log.e("Library", "Lỗi load library", e);
+//        }
 
         int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
@@ -466,6 +470,11 @@ public class HomeFragment extends Fragment {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+                if (!Utils.isNetworkAvailable(requireContext())) {
+                    Toast.makeText(getContext(), "Không có kết nối mạng!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
                 if (currentVolume < threshold) {
@@ -491,17 +500,30 @@ public class HomeFragment extends Fragment {
                 badPacketCount = 0;
 
                 // load model
+                InputStream is = null;
                 try {
-                    if (TrainModel.model == null) {
-//                        File pathFile = new File(getExternalFilesDir(TrainModel.modelDir), TrainModel.fileModelName);
-                        File pathFile = Paths.get("app/src/main/java/trained_nn.zip").toAbsolutePath().toFile();
-                        System.out.println("Model file path:");
-                        System.out.println(pathFile);
-                        TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(pathFile, false);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    is = getContext().getAssets().open("trained_nn.zip");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
+                File tempFile = new File(getContext().getCacheDir(), "trained_nn.zip");
+                try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = is.read(buffer)) > 0) {
+                        fos.write(buffer, 0, length);
+                    }
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(tempFile, false);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
                 Log.d("TAGgggg_model", TrainModel.model + "");
 
 
@@ -539,6 +561,9 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onClick(View arg0) {
+                if (runner != null && !runner.isCancelled()) {
+                    runner.cancel(true); // Hủy AsyncTask
+                }
                 soundManager.playSound();
                 Utils.is_running = false;
                 running = false;
@@ -976,7 +1001,7 @@ public class HomeFragment extends Fragment {
                         if (numbeOfSamples >= MAX_SAMPLES) {
                             numbeOfSamples = 0;
                             dataForInfer = dataCollected.clone();
-                            HomeFragment.AsyncTaskInfer runner = new AsyncTaskInfer();
+                            runner = new AsyncTaskInfer();
                             runner.execute();
                         }
                         dataCollected[numbeOfSamples] = power;
@@ -1095,13 +1120,18 @@ public class HomeFragment extends Fragment {
             }
 
             Log.d("TAG_simpple", sample + "");
-            INDArray sample_to_infer = Nd4j.create(ArrayUtil.flattenDoubleArray(sample), sampleShape);
-            INDArray predicted = TrainModel.model.output(sample_to_infer, false);
-            INDArray index = predicted.argMax();
-            int[] pl = index.toIntVector();
-            currentStatus = pl[0];
-            Log.d("TAGgggg_Pl", currentStatus + "");
-            alertService(pl[0]);
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    INDArray sample_to_infer = Nd4j.create(ArrayUtil.flattenDoubleArray(sample), sampleShape);
+                    INDArray predicted = TrainModel.model.output(sample_to_infer, false);
+                    INDArray index = predicted.argMax();
+                    int[] pl = index.toIntVector();
+                    currentStatus = pl[0];
+                    Log.d("TAGgggg_Pl", currentStatus + "");
+                    alertService(pl[0]);
+                }
+            }, 60000);
             return null;
         }
 
@@ -1117,9 +1147,9 @@ public class HomeFragment extends Fragment {
     }
 
     private int previousValue = -1;
-    private long zeroStartTime = 0; // Lưu thời điểm bắt đầu value = 0
+    private long zeroStartTime = 0;
     private Handler handler_delay = new Handler();
-    private boolean isPlaying = false; // Theo dõi trạng thái phát nhạc
+    private boolean isPlaying = false;
 
     public void alertService(int value) {
         if (value == 0) {
@@ -1153,9 +1183,12 @@ public class HomeFragment extends Fragment {
         }
 
         try {
-            // Đường dẫn file âm thanh
-            String soundUrl = "https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3";
-            player.setDataSource(getContext(), Uri.parse(soundUrl));
+            // Mở file từ res/raw
+            AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.catdoinoisau20hz);
+            if (afd == null) return;
+
+            player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            afd.close();
 
             player.setOnPreparedListener(mp -> {
                 player.start();
@@ -1172,6 +1205,7 @@ public class HomeFragment extends Fragment {
             Log.e("MediaPlayer", "Lỗi phát nhạc", e);
         }
     }
+
 
     // Hàm dừng nhạc
     private void stopPlayer() {

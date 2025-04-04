@@ -74,31 +74,40 @@ public class PlayerFragment extends Fragment {
                 resumeMusic();
             }
         });
-        music_1.setOnClickListener(v -> {
-            playMusic("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3");
-        });
 
-        music_2.setOnClickListener(v -> {
-            playMusic("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3");
-        });
+        music_1.setOnClickListener(v -> prepareAndPlayMusic(R.raw.catdoinoisau20hz));
+        music_2.setOnClickListener(v -> prepareAndPlayMusic(R.raw.catdoinoisau20hz));
+        music_3.setOnClickListener(v -> prepareAndPlayMusic(R.raw.catdoinoisau20hz));
 
-        music_3.setOnClickListener(v -> {
-            playMusic("https://cdn.pixabay.com/audio/2025/03/01/audio_c85ac462e6.mp3");
-        });
     }
-    public void playMusic(String songUrl) {
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDataSource(songUrl);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-            isPlaying = true;
-            startDiskAnimation();
-            img_pause_play.setImageResource(R.drawable.ic_pause);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+    private void prepareAndPlayMusic(int resId) {
+        disableSongSelection();
+
+        mediaPlayer.reset();
+        mediaPlayer = MediaPlayer.create(getContext(), resId);
+
+        if (mediaPlayer != null) {
+            enableSongSelection();
+            playMusic(resId);
         }
     }
+
+
+    public void playMusic(int resId) {
+        if (mediaPlayer != null) {
+            mediaPlayer.reset();
+            mediaPlayer = MediaPlayer.create(getContext(), resId);
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+                isPlaying = true;
+                startDiskAnimation();
+                img_pause_play.setImageResource(R.drawable.ic_pause);
+            }
+        }
+    }
+
+
 
     public void pauseMusic() {
         if (mediaPlayer.isPlaying()) {
@@ -144,6 +153,18 @@ public class PlayerFragment extends Fragment {
         }
     }
 
+    private void disableSongSelection() {
+        music_1.setEnabled(false);
+        music_2.setEnabled(false);
+        music_3.setEnabled(false);
+    }
+
+    private void enableSongSelection() {
+        music_1.setEnabled(true);
+        music_2.setEnabled(true);
+        music_3.setEnabled(true);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -152,5 +173,4 @@ public class PlayerFragment extends Fragment {
             mediaPlayer = null;
         }
     }
-
 }
