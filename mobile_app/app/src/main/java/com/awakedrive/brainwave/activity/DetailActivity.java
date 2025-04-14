@@ -25,7 +25,7 @@ public class DetailActivity extends AppCompatActivity {
     private BroadcastReceiver dataReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if ("com.example.brainwave.UPDATE_DATA".equals(intent.getAction())) {
+            if ("com.awakedrive.brainwave.UPDATE_DATA".equals(intent.getAction())) {
                 int delta = intent.getIntExtra("delta", 0);
                 int theta = intent.getIntExtra("theta", 0);
                 int lowAlpha = intent.getIntExtra("lowAlpha", 0);

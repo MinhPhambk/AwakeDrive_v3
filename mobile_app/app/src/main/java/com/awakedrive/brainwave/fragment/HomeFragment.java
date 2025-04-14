@@ -163,7 +163,6 @@ public class HomeFragment extends Fragment {
     private boolean isReceiverRegistered = false;
     private Handler handler_alert = new Handler();
     private Handler handler = new Handler(Looper.getMainLooper());
-    private HomeFragment.AsyncTaskInfer runner;
 
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -201,7 +200,7 @@ public class HomeFragment extends Fragment {
     private AudioManager audioManager;
     private ContentObserver volumeObserver;
     private int threshold;
-
+    private boolean isFirstRun = true;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -470,11 +469,11 @@ public class HomeFragment extends Fragment {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
+
                 if (!Utils.isNetworkAvailable(requireContext())) {
                     Toast.makeText(getContext(), "Không có kết nối mạng!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
                 int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
                 if (currentVolume < threshold) {
@@ -482,6 +481,9 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 
+                isFirstRun = true;
+                tv_attention_value.setText("Tỉnh táo");
+                currentStatus = 1;
                 Utils.is_running = true;
                 soundManager.playSound();
                 if (running == true) {
@@ -561,9 +563,6 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onClick(View arg0) {
-                if (runner != null && !runner.isCancelled()) {
-                    runner.cancel(true); // Hủy AsyncTask
-                }
                 soundManager.playSound();
                 Utils.is_running = false;
                 running = false;
@@ -1001,7 +1000,7 @@ public class HomeFragment extends Fragment {
                         if (numbeOfSamples >= MAX_SAMPLES) {
                             numbeOfSamples = 0;
                             dataForInfer = dataCollected.clone();
-                            runner = new AsyncTaskInfer();
+                            HomeFragment.AsyncTaskInfer runner = new AsyncTaskInfer();
                             runner.execute();
                         }
                         dataCollected[numbeOfSamples] = power;
@@ -1068,7 +1067,7 @@ public class HomeFragment extends Fragment {
     };
 
     private void sendEEGDataToActivity() {
-        Intent intent = new Intent("com.example.brainwave.UPDATE_DATA");
+        Intent intent = new Intent("com.awakedrive.brainwave.UPDATE_DATA");
         intent.putExtra("delta", lastDelta);
         intent.putExtra("theta", lastTheta);
         intent.putExtra("lowAlpha", lastLowalpha);
@@ -1095,6 +1094,14 @@ public class HomeFragment extends Fragment {
         protected Void doInBackground(Void... params) {
             // run training process here
             Log.d("TAG_background", "doInBackground: ");
+            if (isFirstRun){
+                try {
+                    Thread.sleep(60000); // Độ trễ 60 giây
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                isFirstRun = false;
+            }
             EEGPower[] EEGdata = dataForInfer.clone();
             double[] sample = new double[NUMBER_OF_FEATURES];
             for (int i = 0; i < MAX_SAMPLES; i++) {
@@ -1118,20 +1125,14 @@ public class HomeFragment extends Fragment {
 
                 sample[i * 16 + 15] = (double) (EEGdata[i].delta + EEGdata[i].theta) / (EEGdata[i].lowAlpha + EEGdata[i].highAlpha + EEGdata[i].lowBeta + EEGdata[i].highBeta);
             }
-
             Log.d("TAG_simpple", sample + "");
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    INDArray sample_to_infer = Nd4j.create(ArrayUtil.flattenDoubleArray(sample), sampleShape);
-                    INDArray predicted = TrainModel.model.output(sample_to_infer, false);
-                    INDArray index = predicted.argMax();
-                    int[] pl = index.toIntVector();
-                    currentStatus = pl[0];
-                    Log.d("TAGgggg_Pl", currentStatus + "");
-                    alertService(pl[0]);
-                }
-            }, 60000);
+            INDArray sample_to_infer = Nd4j.create(ArrayUtil.flattenDoubleArray(sample), sampleShape);
+            INDArray predicted = TrainModel.model.output(sample_to_infer, false);
+            INDArray index = predicted.argMax();
+            int[] pl = index.toIntVector();
+            currentStatus = pl[0];
+            Log.d("TAGgggg_Pl", currentStatus + "");
+            alertService(pl[0]);
             return null;
         }
 
