@@ -16,5 +16,7 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+    </style>
 
 </resources>

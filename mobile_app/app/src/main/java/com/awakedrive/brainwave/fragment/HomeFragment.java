@@ -24,13 +24,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -208,7 +213,6 @@ public class HomeFragment extends Fragment {
         requireActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         btn_start = getView().findViewById(R.id.btn_attention_start);
         audioManager = (AudioManager) requireContext().getSystemService(Context.AUDIO_SERVICE);
-
         int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         threshold = (int) (maxVolume * 0.4); // 40% mức tối đa
 
@@ -480,7 +484,7 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "Vui lòng tăng âm lượng lên ít nhất 40% để tiếp tục!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
+//                startFakeSensorData();
                 isFirstRun = true;
                 tv_attention_value.setText("Tỉnh táo");
                 currentStatus = 1;
@@ -495,7 +499,7 @@ public class HomeFragment extends Fragment {
                 if (isProcessing) {
                     return;
                 }
-                showToast("Connecting...", Toast.LENGTH_SHORT);
+                showToast("Đang kết nối...", Toast.LENGTH_SHORT);
                 numbeOfSamples = 0;
                 isProcessing = true;
 
@@ -861,6 +865,7 @@ public class HomeFragment extends Fragment {
         waveView.setValue(2048, 2048, -2048);
     }
 
+
     private void updateWaveView(int data) {
         if (waveView != null) {
             waveView.updateData(data);
@@ -879,7 +884,7 @@ public class HomeFragment extends Fragment {
                     break;
                 case ConnectionStates.STATE_CONNECTED:
                     tgStreamReader.start();
-                    showToast("Connected", Toast.LENGTH_SHORT);
+                    showToast("Đã kết nối", Toast.LENGTH_SHORT);
                     break;
                 case ConnectionStates.STATE_WORKING:
                     tgStreamReader.startRecordRawData();
@@ -887,8 +892,7 @@ public class HomeFragment extends Fragment {
                     break;
                 case ConnectionStates.STATE_GET_DATA_TIME_OUT:
                     tgStreamReader.stopRecordRawData();
-
-                    showToast("Get data time out!", Toast.LENGTH_SHORT);
+                    showToast("Hết thời gian lấy dữ liệu!", Toast.LENGTH_SHORT);
                     break;
                 case ConnectionStates.STATE_STOPPED:
                     break;
@@ -1160,11 +1164,13 @@ public class HomeFragment extends Fragment {
             handler_delay.postDelayed(() -> {
                 if (value == 0 && (System.currentTimeMillis() - zeroStartTime) >= 10000 && !isPlaying) {
                     playHorn();
+                    showAlert();
                 }
             }, 3000);
         } else if (value == 1 && previousValue == 0) {
-            // Dừng nhạc sau 2 giây
+            // Dừng nhạc sau 5 giây
             handler_delay.postDelayed(this::stopPlayer, 5000);
+            handler_delay.postDelayed(this::stopshowAlert, 5000);
         }
 
         previousValue = value;
@@ -1218,6 +1224,77 @@ public class HomeFragment extends Fragment {
             player.release(); // Giải phóng tài nguyên
             player = null;
             isPlaying = false;
+        }
+    }
+    private AlertDialog alertDialog;
+    private Vibrator vibrator;
+    private void showAlert() {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            View view = inflater.inflate(R.layout.dialog_alert_custom, null);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomAlertDialog);
+            builder.setView(view);
+            builder.setCancelable(false);
+
+            alertDialog = builder.create();
+            alertDialog.show();
+            TextView titleText = view.findViewById(R.id.alert_title);
+            TextView msgText = view.findViewById(R.id.alert_message);
+
+            Animation shake = AnimationUtils.loadAnimation(getContext(), R.anim.shake);
+            titleText.startAnimation(shake);
+
+            Animation fade = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in_loop);
+            msgText.startAnimation(fade);
+
+            View container = view.findViewById(R.id.dialog_alert_container);
+            container.setBackgroundColor(Color.RED);
+            Animation flash = AnimationUtils.loadAnimation(getContext(), R.anim.alert_flash_red);
+            Animation scaleShake = AnimationUtils.loadAnimation(getContext(), R.anim.alert_shake_scale);
+
+            container.startAnimation(scaleShake);
+            container.startAnimation(flash);
+
+            // Vibrate
+            vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null) {
+                long[] pattern = {0, 500, 500, 500};
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0));
+                } else {
+                    vibrator.vibrate(pattern, 0);
+                }
+            }
+        });
+    }
+
+
+
+    private void startFakeSensorData() {
+        new Thread(() -> {
+            int[] fakeValues = {0, 0, 1, 1};
+            for (int value : fakeValues) {
+                alertService(value);
+                try {
+                    Thread.sleep(10000);
+                    Log.d("TAGggg_value", value+"");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void stopshowAlert() {
+        // Dừng rung
+        if (vibrator != null) {
+            vibrator.cancel();
+        }
+
+        // Ẩn dialog nếu đang hiển thị
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
         }
     }
 

@@ -6,10 +6,12 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -78,7 +80,15 @@ public class DrawWaveView extends View{
 
         paint = new Paint(Paint.DITHER_FLAG);
 //        paint.setColor(Color.GREEN);
-        paint.setColor(Color.parseColor("#63CBFE"));
+        Shader shader = new LinearGradient(
+                0, 0, 0, mHeight,
+                Color.GREEN,
+                Color.RED,
+                Shader.TileMode.CLAMP
+        );
+        paint.setShader(shader);
+
+//        paint.setColor(Color.parseColor("#63CBFE"));
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(4);
 
@@ -127,6 +137,10 @@ public class DrawWaveView extends View{
         if(currentPoint == 0){
             clear();
         }
+        float percent = (float)(data - minValue) / (maxValue - minValue);
+        int red = (int)(255 * (1 - percent));
+        int green = (int)(255 * percent);
+        paint.setColor(Color.rgb(red, green, 0));
     }
     /**
      * y = top + height - (data -minValue) * height/(2*maxValue)

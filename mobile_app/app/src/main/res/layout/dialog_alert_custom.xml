@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_alert_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_background"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/alert_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/alert_animation" />
+
+
+    <TextView
+        android:id="@+id/alert_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🚨 CẢNH BÁO NGUY HIỂM"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/alert_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hệ thống phát hiện bạn đang buồn ngủ.\nVui lòng tỉnh táo!"
+        android:textColor="#FFEBEE"
+        android:textSize="22sp"
+        android:layout_marginTop="12dp"
+        android:gravity="center"/>
+
+</LinearLayout>

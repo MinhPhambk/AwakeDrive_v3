@@ -13,8 +13,8 @@ android {
         applicationId "com.awakedrive.brainwave"
         minSdk 27
         targetSdk 34
-        versionCode 5
-        versionName "3.2"
+        versionCode 6
+        versionName "3.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -136,7 +136,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database:20.0.5")
     implementation platform('com.google.firebase:firebase-bom:33.9.0') // Luôn dùng phiên bản mới nhất
     implementation 'com.google.firebase:firebase-appcheck-playintegrity'
-
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.23'
     //This corrects for a junit version conflict.
     configurations {
         all {

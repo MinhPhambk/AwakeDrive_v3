@@ -63,6 +63,10 @@ public class RegisterActivity extends AppCompatActivity {
         String email = edt_email.getText().toString();
         String pass = edt_password.getText().toString();
         String re_pass = edt_confirm_password.getText().toString();
+        if (!email.endsWith("@gmail.com")) {
+            Toast.makeText(getApplicationContext(), "Vui lòng nhập địa chỉ Gmail", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!TextUtils.isEmpty(first_name) && !TextUtils.isEmpty(last_name) && !TextUtils.isEmpty(email) && !TextUtils.isEmpty(pass) && !TextUtils.isEmpty(re_pass)) {
             if (isValidPassword(pass)) {
                 if (pass.equals(re_pass)) {
