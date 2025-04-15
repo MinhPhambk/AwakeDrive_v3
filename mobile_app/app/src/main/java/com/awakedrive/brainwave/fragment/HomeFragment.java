@@ -168,6 +168,10 @@ public class HomeFragment extends Fragment {
     private boolean isReceiverRegistered = false;
     private Handler handler_alert = new Handler();
     private Handler handler = new Handler(Looper.getMainLooper());
+    private long startTimestamp = 0;
+
+
+
 
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -485,13 +489,17 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 //                startFakeSensorData();
+//                startInferTime = System.currentTimeMillis();
+                startTimestamp = System.currentTimeMillis();
                 isFirstRun = true;
+
                 tv_attention_value.setText("Tỉnh táo");
                 currentStatus = 1;
                 Utils.is_running = true;
                 soundManager.playSound();
                 if (running == true) {
                     Toast.makeText(getContext(), "Vui lòng stop trước khi start lại", Toast.LENGTH_SHORT).show();
+                    return;
                 } else
                     running = true;
                 seconds = 0;
@@ -568,12 +576,22 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View arg0) {
                 soundManager.playSound();
+                long currentTimestamp = System.currentTimeMillis();
+                long elapsedSeconds = (currentTimestamp - startTimestamp) / 1000;
+
+                if (elapsedSeconds < 90) {
+                    Toast.makeText(getContext(), "Vui lòng chờ ít nhất 90 giây trước khi dừng!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                isFirstRun=true;
                 Utils.is_running = false;
                 running = false;
                 handler.removeCallbacks(updateTime);
                 stop();
                 stopRecording();
                 stopPlayer();
+
             }
         });
 
@@ -862,7 +880,7 @@ public class HomeFragment extends Fragment {
 
         wave_layout.addView(waveView, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-        waveView.setValue(2048, 2048, -2048);
+        waveView.setValue(2048, 1000, -2048);
     }
 
 
@@ -959,9 +977,12 @@ public class HomeFragment extends Fragment {
 
     private int normalizeEEG(int rawValue) {
         final int EEG_MIN = -2048;
-        final int EEG_MAX = 2048;
-        return (int) (((double) (rawValue - EEG_MIN) / (EEG_MAX - EEG_MIN)) * 100);
+        final int EEG_MAX = 1000;
+        int normalized = (int) (((double) (rawValue - EEG_MIN) / (EEG_MAX - EEG_MIN)) * 100);
+
+        return Math.max(0, Math.min(100, normalized));
     }
+
 
     private void startUpdatingLevel() {
         handler.postDelayed(new Runnable() {
@@ -1098,14 +1119,16 @@ public class HomeFragment extends Fragment {
         protected Void doInBackground(Void... params) {
             // run training process here
             Log.d("TAG_background", "doInBackground: ");
-            if (isFirstRun){
+            if (isFirstRun) {
                 try {
-                    Thread.sleep(60000); // Độ trễ 60 giây
+                    Log.d("TAG_delay", "Sleeping for 60000 ms (first run)");
+                    Thread.sleep(60000); // luôn delay 60 giây nếu isFirstRun == true
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 isFirstRun = false;
             }
+
             EEGPower[] EEGdata = dataForInfer.clone();
             double[] sample = new double[NUMBER_OF_FEATURES];
             for (int i = 0; i < MAX_SAMPLES; i++) {
@@ -1155,6 +1178,7 @@ public class HomeFragment extends Fragment {
     private long zeroStartTime = 0;
     private Handler handler_delay = new Handler();
     private boolean isPlaying = false;
+    private boolean isAlertShowing = false;
 
     public void alertService(int value) {
         if (value == 0) {
@@ -1170,7 +1194,8 @@ public class HomeFragment extends Fragment {
         } else if (value == 1 && previousValue == 0) {
             // Dừng nhạc sau 5 giây
             handler_delay.postDelayed(this::stopPlayer, 5000);
-            handler_delay.postDelayed(this::stopshowAlert, 5000);
+            stopshowAlert();
+//            handler_delay.postDelayed(this::stopshowAlert, 5000);
         }
 
         previousValue = value;
@@ -1191,7 +1216,7 @@ public class HomeFragment extends Fragment {
 
         try {
             // Mở file từ res/raw
-            AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.catdoinoisau20hz);
+            AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.isochronic_tones_alert);
             if (afd == null) return;
 
             player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
@@ -1229,6 +1254,8 @@ public class HomeFragment extends Fragment {
     private AlertDialog alertDialog;
     private Vibrator vibrator;
     private void showAlert() {
+        if (isAlertShowing) return;
+        isAlertShowing = true;
         new Handler(Looper.getMainLooper()).post(() -> {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             View view = inflater.inflate(R.layout.dialog_alert_custom, null);
@@ -1296,6 +1323,7 @@ public class HomeFragment extends Fragment {
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
         }
+        isAlertShowing = false;
     }
 
 

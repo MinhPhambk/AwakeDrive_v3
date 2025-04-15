@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerBottomSheetDialog extends BottomSheetDialogFragment {
-    private LinearLayout music_1, music_2, music_3, music_4, music_5;
+    private LinearLayout music_1, music_2;
     private ImageView bnt;
-    private TextView music_time, music_time_2, music_time_3, music_time_4, music_time_5, tv_name_music;
+    private TextView music_time, music_time_2;
 
     @Nullable
     @Override
@@ -39,30 +39,18 @@ public class PlayerBottomSheetDialog extends BottomSheetDialogFragment {
         // Ánh xạ các view
         music_1 = getDialog().findViewById(R.id.music_1);
         music_2 = getDialog().findViewById(R.id.music_2);
-        music_3 = getDialog().findViewById(R.id.music_3);
-        music_4 = getDialog().findViewById(R.id.music_4);
-        music_5 = getDialog().findViewById(R.id.music_5);
         bnt = getDialog().findViewById(R.id.bnt);
         music_time = getDialog().findViewById(R.id.music_time);
         music_time_2 = getDialog().findViewById(R.id.music_time_2);
-        music_time_3 = getDialog().findViewById(R.id.music_time_3);
-        music_time_4 = getDialog().findViewById(R.id.music_time_4);
-        music_time_5 = getDialog().findViewById(R.id.music_time_5);
 
         prepareMusic(music_time, R.raw.catdoinoisau20hz, music_1);
-        prepareMusic(music_time_2, R.raw.catdoinoisau20hz, music_2);
-        prepareMusic(music_time_3, R.raw.catdoinoisau20hz, music_3);
-        prepareMusic(music_time_4, R.raw.catdoinoisau20hz, music_4);
-        prepareMusic(music_time_5, R.raw.catdoinoisau20hz, music_5);
+        prepareMusic(music_time_2, R.raw.isochronic_tones_alert, music_2);
 
 
 
         // Xử lý sự kiện click chọn nhạc
         music_1.setOnClickListener(v -> selectSong(R.raw.catdoinoisau20hz));
-        music_2.setOnClickListener(v -> selectSong(R.raw.catdoinoisau20hz));
-        music_3.setOnClickListener(v -> selectSong(R.raw.catdoinoisau20hz));
-        music_4.setOnClickListener(v -> selectSong(R.raw.catdoinoisau20hz));
-        music_5.setOnClickListener(v -> selectSong(R.raw.catdoinoisau20hz));
+        music_2.setOnClickListener(v -> selectSong(R.raw.isochronic_tones_alert));
 
         // Mở rộng BottomSheet
         if (getView() != null) {

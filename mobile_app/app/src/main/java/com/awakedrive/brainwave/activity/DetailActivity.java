@@ -76,7 +76,7 @@ public class DetailActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(dataReceiver, new IntentFilter("com.example.brainwave.UPDATE_DATA"));
+                .registerReceiver(dataReceiver, new IntentFilter("com.awakedrive.brainwave.UPDATE_DATA"));
     }
 
 

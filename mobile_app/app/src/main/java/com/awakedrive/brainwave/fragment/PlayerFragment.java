@@ -25,7 +25,7 @@ public class PlayerFragment extends Fragment {
 
     private float startY;
     private ImageView img_pause_play, img_player;
-    private CardView music_1, music_2, music_3;
+    private CardView music_1, music_2;
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
     private ObjectAnimator diskAnimator;
@@ -44,7 +44,6 @@ public class PlayerFragment extends Fragment {
         img_player = view.findViewById(R.id.img_player);
         music_1 = view.findViewById(R.id.music_1);
         music_2 = view.findViewById(R.id.music_2);
-        music_3 = view.findViewById(R.id.music_3);
         soundManager = SoundManager.getInstance(getContext());
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -76,8 +75,7 @@ public class PlayerFragment extends Fragment {
         });
 
         music_1.setOnClickListener(v -> prepareAndPlayMusic(R.raw.catdoinoisau20hz));
-        music_2.setOnClickListener(v -> prepareAndPlayMusic(R.raw.catdoinoisau20hz));
-        music_3.setOnClickListener(v -> prepareAndPlayMusic(R.raw.catdoinoisau20hz));
+        music_2.setOnClickListener(v -> prepareAndPlayMusic(R.raw.isochronic_tones_alert));
 
     }
 
@@ -156,13 +154,12 @@ public class PlayerFragment extends Fragment {
     private void disableSongSelection() {
         music_1.setEnabled(false);
         music_2.setEnabled(false);
-        music_3.setEnabled(false);
+
     }
 
     private void enableSongSelection() {
         music_1.setEnabled(true);
         music_2.setEnabled(true);
-        music_3.setEnabled(true);
     }
 
     @Override

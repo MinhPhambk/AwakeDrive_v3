@@ -63,7 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout6"
@@ -108,25 +108,7 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Third Image -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/music_3"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="10dp"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="5dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
 
-            <!-- ImageView hiển thị hình ảnh với background -->
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/baseline_music_note_24" />
-
-        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
     <TextView
