@@ -492,7 +492,7 @@ public class HomeFragment extends Fragment {
 //                startInferTime = System.currentTimeMillis();
                 startTimestamp = System.currentTimeMillis();
                 isFirstRun = true;
-
+                startFakeSensorData();
                 tv_attention_value.setText("Tỉnh táo");
                 currentStatus = 1;
                 Utils.is_running = true;
@@ -594,7 +594,6 @@ public class HomeFragment extends Fragment {
 
             }
         });
-
         bt_detail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1259,7 +1258,7 @@ public class HomeFragment extends Fragment {
         new Handler(Looper.getMainLooper()).post(() -> {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             View view = inflater.inflate(R.layout.dialog_alert_custom, null);
-
+            Button alert_stop = view.findViewById(R.id.alert_stop);
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.CustomAlertDialog);
             builder.setView(view);
             builder.setCancelable(false);
@@ -1293,14 +1292,32 @@ public class HomeFragment extends Fragment {
                     vibrator.vibrate(pattern, 0);
                 }
             }
+            alert_stop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    soundManager.playSound();
+                    long currentTimestamp = System.currentTimeMillis();
+                    long elapsedSeconds = (currentTimestamp - startTimestamp) / 1000;
+
+                    isFirstRun=true;
+                    Utils.is_running = false;
+                    running = false;
+                    handler.removeCallbacks(updateTime);
+                    stop();
+                    stopRecording();
+                    stopPlayer();
+                    stopshowAlert();
+                }
+            });
         });
+
     }
 
 
 
     private void startFakeSensorData() {
         new Thread(() -> {
-            int[] fakeValues = {0, 0, 1, 1};
+            int[] fakeValues = {0, 0, 0,1, 1};
             for (int value : fakeValues) {
                 alertService(value);
                 try {
