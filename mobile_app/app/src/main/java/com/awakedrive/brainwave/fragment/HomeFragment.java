@@ -492,7 +492,7 @@ public class HomeFragment extends Fragment {
 //                startInferTime = System.currentTimeMillis();
                 startTimestamp = System.currentTimeMillis();
                 isFirstRun = true;
-                startFakeSensorData();
+//                startFakeSensorData();
                 tv_attention_value.setText("Tỉnh táo");
                 currentStatus = 1;
                 Utils.is_running = true;
@@ -1312,7 +1312,6 @@ public class HomeFragment extends Fragment {
         });
 
     }
-
 
 
     private void startFakeSensorData() {

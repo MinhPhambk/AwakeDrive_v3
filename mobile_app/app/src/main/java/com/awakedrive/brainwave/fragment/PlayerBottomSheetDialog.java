@@ -54,12 +54,13 @@ public class PlayerBottomSheetDialog extends BottomSheetDialogFragment {
 
         // Mở rộng BottomSheet
         if (getView() != null) {
-            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-            layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-            view.setLayoutParams(layoutParams);
+//            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+//            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//            view.setLayoutParams(layoutParams);
 
             BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(view);
             behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
         }
     }
 
