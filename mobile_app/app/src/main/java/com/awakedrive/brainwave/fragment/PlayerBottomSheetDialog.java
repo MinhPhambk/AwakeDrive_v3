@@ -30,12 +30,21 @@ public class PlayerBottomSheetDialog extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.music2_ntthanh, container, false);
     }
+
     @Override
     public void onStart() {
         super.onStart();
 
         View view = getDialog().findViewById(com.google.android.material.R.id.design_bottom_sheet);
+        if (view != null) {
+            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+            layoutParams.height = (int) (requireContext().getResources().getDisplayMetrics().heightPixels * 0.5);
+            view.setLayoutParams(layoutParams);
 
+            BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(view);
+            behavior.setPeekHeight(layoutParams.height);
+            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
         // Ánh xạ các view
         music_1 = getDialog().findViewById(R.id.music_1);
         music_2 = getDialog().findViewById(R.id.music_2);
@@ -47,21 +56,12 @@ public class PlayerBottomSheetDialog extends BottomSheetDialogFragment {
         prepareMusic(music_time_2, R.raw.isochronic_tones_alert, music_2);
 
 
-
         // Xử lý sự kiện click chọn nhạc
         music_1.setOnClickListener(v -> selectSong(R.raw.catdoinoisau20hz));
         music_2.setOnClickListener(v -> selectSong(R.raw.isochronic_tones_alert));
 
         // Mở rộng BottomSheet
-        if (getView() != null) {
-//            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-//            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//            view.setLayoutParams(layoutParams);
 
-            BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(view);
-            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-        }
     }
 
     private void prepareMusic(TextView timeView, int resId, LinearLayout musicButton) {
@@ -77,7 +77,6 @@ public class PlayerBottomSheetDialog extends BottomSheetDialogFragment {
             musicButton.setAlpha(0.5f);
         }
     }
-
 
 
     private void selectSong(int resId) {
