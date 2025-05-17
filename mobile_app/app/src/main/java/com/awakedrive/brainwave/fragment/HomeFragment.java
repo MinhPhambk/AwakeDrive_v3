@@ -2,10 +2,12 @@ package com.awakedrive.brainwave.fragment;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
@@ -171,9 +173,6 @@ public class HomeFragment extends Fragment {
     private long startTimestamp = 0;
 
 
-
-
-
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -286,8 +285,8 @@ public class HomeFragment extends Fragment {
                     .setNegativeButton("Hủy", (dialog12, which) -> dialog12.dismiss())
                     .show();
 
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.RED);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.BLUE);
 
             TextView messageView = dialog.findViewById(android.R.id.message);
             if (messageView != null) {
@@ -393,7 +392,6 @@ public class HomeFragment extends Fragment {
         if (firebaseHandler != null) {
             firebaseHandler.removeCallbacks(firebaseRunnable);
 
-            // Kiểm tra xem data có tồn tại không trước khi lưu session
             databaseRef.child("sessions").child(sessionId).child("data")
                     .get().addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult().exists()) {
@@ -433,6 +431,7 @@ public class HomeFragment extends Fragment {
             Log.e("TAGggggg", "printHashKey()", e);
         }
     }
+
 
     private void initView(View view) {
         soundManager = SoundManager.getInstance(getContext());
@@ -477,98 +476,204 @@ public class HomeFragment extends Fragment {
         btn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
-                if (!Utils.isNetworkAvailable(requireContext())) {
-                    Toast.makeText(getContext(), "Không có kết nối mạng!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
                 if (currentVolume < threshold) {
                     Toast.makeText(getContext(), "Vui lòng tăng âm lượng lên ít nhất 40% để tiếp tục!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-//                startFakeSensorData();
+                if (!Utils.isNetworkAvailable(requireContext())) {
+                    AlertDialog dialog = new AlertDialog.Builder(getContext())
+                            .setTitle("Không có kết nối Wi-Fi")
+                            .setMessage("Bạn không đang sử dụng Wi-Fi dữ liệu sẽ không được lưu. Bạn có muốn mở cài đặt Wi-Fi không?")
+                            .setPositiveButton("Mở cài đặt", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                                }
+                            })
+                            .setNegativeButton("Tiếp tục", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //                startFakeSensorData();
 //                startInferTime = System.currentTimeMillis();
-                startTimestamp = System.currentTimeMillis();
-                isFirstRun = true;
+                                    startTimestamp = System.currentTimeMillis();
+                                    isFirstRun = true;
 //                startFakeSensorData();
-                tv_attention_value.setText("Tỉnh táo");
-                currentStatus = 1;
-                Utils.is_running = true;
-                soundManager.playSound();
-                if (running == true) {
-                    Toast.makeText(getContext(), "Vui lòng stop trước khi start lại", Toast.LENGTH_SHORT).show();
-                    return;
-                } else
-                    running = true;
-                seconds = 0;
-                handler.post(updateTime);
-                if (isProcessing) {
-                    return;
-                }
-                showToast("Đang kết nối...", Toast.LENGTH_SHORT);
-                numbeOfSamples = 0;
-                isProcessing = true;
+                                    tv_attention_value.setText("Tỉnh táo");
+                                    currentStatus = 1;
+                                    Utils.is_running = true;
+                                    soundManager.playSound();
+                                    if (running == true) {
+                                        Toast.makeText(getContext(), "Vui lòng stop trước khi start lại", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    } else
+                                        running = true;
+                                    seconds = 0;
+                                    handler.post(updateTime);
+                                    if (isProcessing) {
+                                        return;
+                                    }
+                                    showToast("Đang kết nối...", Toast.LENGTH_SHORT);
+                                    numbeOfSamples = 0;
+                                    isProcessing = true;
 
-                badPacketCount = 0;
+                                    badPacketCount = 0;
 
-                // load model
-                InputStream is = null;
-                try {
-                    is = getContext().getAssets().open("trained_nn.zip");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                File tempFile = new File(getContext().getCacheDir(), "trained_nn.zip");
-                try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = is.read(buffer)) > 0) {
-                        fos.write(buffer, 0, length);
-                    }
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(tempFile, false);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                                    // load model
+                                    InputStream is = null;
+                                    try {
+                                        is = getContext().getAssets().open("trained_nn.zip");
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    File tempFile = new File(getContext().getCacheDir(), "trained_nn.zip");
+                                    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                                        byte[] buffer = new byte[1024];
+                                        int length;
+                                        while ((length = is.read(buffer)) > 0) {
+                                            fos.write(buffer, 0, length);
+                                        }
+                                    } catch (FileNotFoundException e) {
+                                        throw new RuntimeException(e);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    try {
+                                        TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(tempFile, false);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
 
-                Log.d("TAGgggg_model", TrainModel.model + "");
+                                    Log.d("TAGgggg_model", TrainModel.model + "");
 
 
-                if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
+                                    if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
 
-                    // Prepare for connecting
-                    tgStreamReader.stop();
-                    tgStreamReader.close();
-                }
+                                        // Prepare for connecting
+                                        tgStreamReader.stop();
+                                        tgStreamReader.close();
+                                    }
 
-                tgStreamReader.connect();
+                                    tgStreamReader.connect();
 //				tgStreamReader.connectAndStart();
 //                startRecording();
-                isRecording = true;
-                startTime = System.currentTimeMillis();
-                sessionId = String.valueOf(startTime);
-                endTime = 0;
-                firebaseHandler = new Handler();
-                firebaseRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!isRecording) return;
+                                    isRecording = true;
+                                    startTime = System.currentTimeMillis();
+                                    sessionId = String.valueOf(startTime);
+                                    endTime = 0;
+                                    firebaseHandler = new Handler();
+                                    firebaseRunnable = new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (!isRecording) return;
 
-                        if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
-                                lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel != -1) {
-                            saveDataToFirebase(uid, sessionId);
+                                            if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
+                                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel != -1) {
+                                                saveDataToFirebase(uid, sessionId);
+                                            }
+                                            firebaseHandler.postDelayed(this, 1000);
+                                        }
+                                    };
+                                    firebaseHandler.post(firebaseRunnable);
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface d) {
+                            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                            if (positiveButton != null)
+                                positiveButton.setTextColor(Color.parseColor("#2196F3"));
+                            if (negativeButton != null)
+                                negativeButton.setTextColor(Color.parseColor("#F44336"));
                         }
-                        firebaseHandler.postDelayed(this, 1000);
+                    });
+                    dialog.show();
+                } else {
+                    //                startFakeSensorData();
+//                startInferTime = System.currentTimeMillis();
+                    startTimestamp = System.currentTimeMillis();
+                    isFirstRun = true;
+//                startFakeSensorData();
+                    tv_attention_value.setText("Tỉnh táo");
+                    currentStatus = 1;
+                    Utils.is_running = true;
+                    soundManager.playSound();
+                    if (running == true) {
+                        Toast.makeText(getContext(), "Vui lòng stop trước khi start lại", Toast.LENGTH_SHORT).show();
+                        return;
+                    } else
+                        running = true;
+                    seconds = 0;
+                    handler.post(updateTime);
+                    if (isProcessing) {
+                        return;
                     }
-                };
-                firebaseHandler.post(firebaseRunnable);
+                    showToast("Đang kết nối...", Toast.LENGTH_SHORT);
+                    numbeOfSamples = 0;
+                    isProcessing = true;
+
+                    badPacketCount = 0;
+
+                    // load model
+                    InputStream is = null;
+                    try {
+                        is = getContext().getAssets().open("trained_nn.zip");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    File tempFile = new File(getContext().getCacheDir(), "trained_nn.zip");
+                    try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = is.read(buffer)) > 0) {
+                            fos.write(buffer, 0, length);
+                        }
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        TrainModel.model = ModelSerializer.restoreMultiLayerNetwork(tempFile, false);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    Log.d("TAGgggg_model", TrainModel.model + "");
+
+
+                    if (tgStreamReader != null && tgStreamReader.isBTConnected()) {
+
+                        // Prepare for connecting
+                        tgStreamReader.stop();
+                        tgStreamReader.close();
+                    }
+
+                    tgStreamReader.connect();
+//				tgStreamReader.connectAndStart();
+//                startRecording();
+                    isRecording = true;
+                    startTime = System.currentTimeMillis();
+                    sessionId = String.valueOf(startTime);
+                    endTime = 0;
+                    firebaseHandler = new Handler();
+                    firebaseRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!isRecording) return;
+
+                            if (uid != null && lastDelta != -1 && lastTheta != -1 && lastLowalpha != -1 && lastHighAlpha != -1 &&
+                                    lastHighBeta != -1 && lastLowBeta != -1 && lastLowGamma != -1 && lastMiddleGamma != -1 && alertnessLevel != -1) {
+                                saveDataToFirebase(uid, sessionId);
+                            }
+                            firebaseHandler.postDelayed(this, 1000);
+                        }
+                    };
+                    firebaseHandler.post(firebaseRunnable);
+                }
             }
         });
         btn_stop.setOnClickListener(new View.OnClickListener() {
@@ -584,7 +689,7 @@ public class HomeFragment extends Fragment {
                     return;
                 }
 
-                isFirstRun=true;
+                isFirstRun = true;
                 Utils.is_running = false;
                 running = false;
                 handler.removeCallbacks(updateTime);
@@ -1243,15 +1348,17 @@ public class HomeFragment extends Fragment {
         if (player != null) {
             if (player.isPlaying()) {
                 player.stop(); // Dừng phát nếu đang phát
-                Log.d("MediaPlayer", "⏹️ Dừng phát nhạc.");
+                Log.d("MediaPlayer", "Dừng phát nhạc.");
             }
             player.release(); // Giải phóng tài nguyên
             player = null;
             isPlaying = false;
         }
     }
+
     private AlertDialog alertDialog;
     private Vibrator vibrator;
+
     private void showAlert() {
         if (isAlertShowing) return;
         isAlertShowing = true;
@@ -1299,7 +1406,7 @@ public class HomeFragment extends Fragment {
                     long currentTimestamp = System.currentTimeMillis();
                     long elapsedSeconds = (currentTimestamp - startTimestamp) / 1000;
 
-                    isFirstRun=true;
+                    isFirstRun = true;
                     Utils.is_running = false;
                     running = false;
                     handler.removeCallbacks(updateTime);
@@ -1316,12 +1423,12 @@ public class HomeFragment extends Fragment {
 
     private void startFakeSensorData() {
         new Thread(() -> {
-            int[] fakeValues = {0, 0, 0,1, 1};
+            int[] fakeValues = {0, 0, 0, 1, 1};
             for (int value : fakeValues) {
                 alertService(value);
                 try {
                     Thread.sleep(10000);
-                    Log.d("TAGggg_value", value+"");
+                    Log.d("TAGggg_value", value + "");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -1391,7 +1498,6 @@ public class HomeFragment extends Fragment {
                     DataSnapshot infoSnapshot = sessionSnapshot.child("info");
 
                     if (!infoSnapshot.exists() || infoSnapshot.getValue() == null) {
-                        // Xóa toàn bộ session nếu info không tồn tại hoặc rỗng
                         sessionSnapshot.getRef().removeValue()
                                 .addOnSuccessListener(aVoid -> Log.d("Firebase", "Xóa session: " + sessionId))
                                 .addOnFailureListener(e -> Log.e("Firebase", "Lỗi khi xóa session: " + sessionId, e));
